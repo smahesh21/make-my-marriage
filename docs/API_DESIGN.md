@@ -158,6 +158,12 @@ If a public external API is introduced later, explicit versioning can be added t
 
 # 4. API Surface Categories
 
+## 4.1 Public landing page boundary
+
+The `/` landing page is not an API surface. It is a public presentation page governed by `DESIGN.md`, with static examples and anchor navigation where the corresponding product workflows are not yet implemented.
+
+The API must not expose or imply capabilities only shown in static landing-page content. In particular, budget planning, automated WhatsApp or SMS delivery, hotel or flight management, extra permission roles, and real-time collaboration remain outside the V1 API unless the PRD and related design documents are explicitly changed.
+
 There are four categories.
 
 ```text
@@ -1566,7 +1572,7 @@ fallback) and open-in-new-tab; sharing via other apps is manual.
 Used for:
 
 - Copy Link
-- WhatsApp Share
+- User-controlled device or WhatsApp sharing
 
 ---
 
@@ -3546,7 +3552,7 @@ They must:
 - Never be exposed in unrelated API responses
 - Be rotatable in the future if compromised
 
-This gives us a much cleaner user experience for Copy Link, WhatsApp and QR sharing.
+This gives us a much cleaner user experience for Copy Link, QR sharing, and user-controlled manual sharing (including WhatsApp) without introducing automated messaging.
 
 ---
 

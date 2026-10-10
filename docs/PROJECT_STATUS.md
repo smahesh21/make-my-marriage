@@ -49,6 +49,19 @@ The page uses static presentation content for items that are outside the current
 
 **Verification:** The homepage was visually checked against the Stitch reference, and the typecheck, lint, and production build checks passed. The local development server was also refreshed after resolving a stale CSS asset issue.
 
+### 3. Design alignment across source-of-truth documents
+
+**Status:** Complete
+
+The PRD, system design, database design, and API design now explicitly align with `DESIGN.md`. The documentation distinguishes user-controlled manual invitation sharing from automated WhatsApp/SMS delivery, treats the landing page as a presentation surface, and prevents static Stitch examples from expanding the documented V1 scope or backend contracts.
+
+**Updated documents:**
+
+- `docs/PRODUCT_REQUIREMENT_DOCUMENT.md`
+- `docs/SYSTEM_DESIGN.md`
+- `docs/DATABASE_DESIGN.md`
+- `docs/API_DESIGN.md`
+
 ## Status vocabulary
 
 - **Planned:** Identified, but implementation has not started.

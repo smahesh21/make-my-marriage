@@ -68,6 +68,18 @@ The architecture should comfortably support approximately:
 
 without requiring major architectural changes.
 
+## 2.1 Product-facing design boundary
+
+The public landing page is a presentation surface and follows the visual and content system in `DESIGN.md`:
+
+- Warm ivory and paper-white surfaces with charcoal, muted olive, soft stone, and muted sage tokens
+- Noto Serif for display text and Inter for UI and body copy
+- Asymmetric editorial layouts with generous whitespace
+- Responsive compositions that collapse below mobile breakpoints
+- Touch targets of at least 44px and restrained transform/opacity motion
+
+These rules govern the presentation layer; they do not create new backend capabilities or persistence requirements. Landing-page examples that are outside the PRD are static presentation content until the product scope, API design, and data model are explicitly updated.
+
 ---
 
 # 3. Architecture Principles
@@ -164,6 +176,7 @@ Managed services will be used for:
 | Logging | Application / Vercel logs |
 | Realtime | Not used in V1 |
 | Product Analytics | Not used in MVP |
+| UI Design System | `DESIGN.md` tokens and responsive CSS |
 
 ---
 
@@ -277,11 +290,25 @@ Business logic should not become embedded inside individual route files.
 
 # 7. Application Surfaces
 
-The product has three fundamentally different application surfaces.
+The product has four fundamentally different application surfaces.
 
 ---
 
-## 7.1 Private Wedding Dashboard
+## 7.1 Public landing page
+
+Example:
+
+```text
+/
+```
+
+Does not require authentication. It introduces the product and provides anchor navigation or future entry points to the application.
+
+The landing page may use static dashboard and feature examples to communicate the intended experience. It must not be treated as an API contract or as evidence that unsupported capabilities such as budget planning, automated messaging, hotel/flight management, or real-time collaboration are implemented.
+
+---
+
+## 7.2 Private Wedding Dashboard
 
 Example:
 
@@ -309,7 +336,7 @@ Includes:
 
 ---
 
-## 7.2 Public Wedding Website
+## 7.3 Public Wedding Website
 
 Example:
 
@@ -332,7 +359,7 @@ Possible sections:
 
 ---
 
-## 7.3 Token-Protected Guest Experience
+## 7.4 Token-Protected Guest Experience
 
 Examples:
 

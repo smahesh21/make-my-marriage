@@ -37,6 +37,32 @@ The product should feel like:
 
 > **The operating system for managing an Indian wedding.**
 
+## 1.3 Landing-page positioning and design alignment
+
+The public landing page follows the visual and content rules in `DESIGN.md`. It presents Make My Marriage as a calm, editorial shared wedding workspace for couples and family members.
+
+The landing page may describe these PRD-backed areas:
+
+- Events and ceremony planning
+- Tasks and checklists
+- Guests and invitations
+- RSVPs
+- Expense tracking
+- Vendors
+- Wedding websites
+- Livestream links
+- Private photo sharing
+
+The landing page must not present the following as implemented V1 capabilities:
+
+- Wedding budget planning, budget allocation, or budget variance tracking
+- Automated WhatsApp or SMS messaging
+- Hotel, flight, accommodation, or transport management
+- Extra permission roles beyond the documented Admin and Manager roles
+- Real-time collaboration or real-time notifications
+
+If a Stitch reference shows an unsupported example, the implementation may retain it as clearly static presentation content while the feature remains outside the PRD. Static landing-page content does not expand the product scope, API surface, database model, or implementation status.
+
 ---
 
 # 2. Problem Statement
@@ -333,7 +359,7 @@ Guest information is imported or added manually.
 
 Unique invitation links are generated.
 
-Invitations are sent through email or manually shared through WhatsApp.
+Invitations are sent through email or manually shared by the organiser. A copied link may be pasted into WhatsApp or another user-controlled sharing channel, but Make My Marriage does not automate those messages.
 
 ### Step 8: Receive RSVPs
 
@@ -753,19 +779,13 @@ Automated scheduled reminder workflows are not necessary for the first implement
 
 ---
 
-# 9.14 WhatsApp Sharing
+# 9.14 Manual invitation link sharing
 
-The product should provide a:
+The product should provide a clear copy/share action for a guest invitation URL.
 
-**Share on WhatsApp**
+A user may paste the copied URL into WhatsApp or use a device share sheet with a pre-filled message. This is a user-initiated sharing action, not a messaging integration.
 
-button.
-
-The button opens WhatsApp with a pre-filled message containing the guest's invitation URL.
-
-No WhatsApp API integration is required.
-
-Make My Marriage does not automatically send WhatsApp messages in V1.
+No WhatsApp API integration, automated WhatsApp delivery, or SMS delivery is required in V1.
 
 ---
 
@@ -1239,7 +1259,7 @@ Important mobile workflows:
 - Invitation viewing
 - Photo upload
 - Gallery browsing
-- WhatsApp sharing
+- Manual invitation link sharing, including user-controlled device or WhatsApp sharing
 
 ## 12.4 Minimal Guest Friction
 
@@ -1267,7 +1287,7 @@ Examples:
 - Roka
 - Multiple events
 - Family organisers
-- WhatsApp sharing
+- Manual invitation link sharing, including user-controlled device or WhatsApp sharing
 - INR formatting
 - Large guest counts
 
@@ -1424,7 +1444,7 @@ Even though all features belong to the V1 product vision, implementation should 
 - Invitations
 - RSVP
 - Email
-- WhatsApp sharing
+- Manual invitation link sharing
 
 ## Phase 4: Financial and Vendors
 

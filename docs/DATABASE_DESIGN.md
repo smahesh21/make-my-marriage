@@ -125,6 +125,12 @@ These can initially be calculated from indexed collections.
 
 At much larger scale, selective counters can be introduced.
 
+## 2.6 Landing page is not a data-model contract
+
+The public landing page may show static examples of tasks, guests, invitations, RSVP states, expenses, vendor commitments, livestream links, and private photo sharing. These examples communicate the intended product experience and do not require a separate landing-page collection or additional fields.
+
+The landing page must not cause the database to model capabilities excluded from the PRD, including wedding budget planning, automated WhatsApp or SMS delivery, hotel or flight management, extra permission roles, or real-time collaboration. Those capabilities require an explicit product decision before any schema work begins.
+
 ---
 
 # 3. Collection Overview
@@ -1322,7 +1328,7 @@ This allows invitations to be:
 
 - emailed
 - copied
-- manually shared through WhatsApp
+- manually shared by the organiser through a user-controlled channel such as WhatsApp
 
 without changing the URL later.
 
@@ -2860,7 +2866,7 @@ phone
 
 without email.
 
-The organiser can manually share their invitation through WhatsApp.
+The organiser can manually copy and share their invitation through a user-controlled channel such as WhatsApp. This does not require a WhatsApp or SMS integration.
 
 Therefore:
 
@@ -2896,7 +2902,7 @@ Example:
 +919876543210
 ```
 
-Normalization rules can be improved when WhatsApp/SMS integrations are introduced.
+Normalization rules can be revisited only if a future product decision introduces WhatsApp or SMS integrations.
 
 ---
 
