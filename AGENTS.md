@@ -13,6 +13,14 @@ Before implementing a feature, read the relevant documents in `docs/`:
 
 Do not silently change an established product or architecture decision. If documents conflict, identify the conflict before coding.
 
+## Project status tracking
+
+- Maintain `docs/PROJECT_STATUS.md` as the durable log of major project milestones.
+- Read the status file when planning work that builds on an existing milestone.
+- After completing a major feature, update the status file in the same change with its status, date, concise scope, primary files or modules, verification performed, and any intentionally static or deferred behavior.
+- Keep product and architecture decisions in their respective source-of-truth documents; the status file summarizes progress and does not replace those documents.
+- Do not add individual entries for minor styling changes, routine refactors, dependency refreshes, or small bug fixes unless they materially change a milestone's status.
+
 ## Application boundaries
 
 - `src/app/` contains Next.js pages, layouts, and thin REST Route Handlers.
