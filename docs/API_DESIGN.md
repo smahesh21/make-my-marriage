@@ -495,9 +495,14 @@ No email verification occurs.
 ```json
 {
   "email": "akshay@example.com",
-  "password": "password"
+  "password": "password",
+  "rememberDevice": true
 }
 ```
+
+`rememberDevice` defaults to `true`. When it is `false`, the browser receives a
+session cookie without a persistent `maxAge` and the server session expires after
+24 hours instead of 30 days.
 
 ### Response
 
@@ -637,6 +642,11 @@ Store Token Hash
 Send Email through Resend
 ```
 
+The request is rate limited by client IP and normalized email. The response remains
+generic so callers cannot determine whether an account exists. Resend delivery
+requires the server-side `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and configured
+`NEXT_PUBLIC_APP_URL` values.
+
 ---
 
 # 16. Reset Password
@@ -667,6 +677,9 @@ INVALID_TOKEN
 TOKEN_EXPIRED
 VALIDATION_ERROR
 ```
+
+Password reset requests are rate limited by client IP. A delivery failure returns
+`EMAIL_DELIVERY_FAILED`; reset tokens are never included in API responses or logs.
 
 ---
 
@@ -805,6 +818,10 @@ Any subset:
 ```
 
 Existing wedding slug should remain unchanged when names/date change.
+
+The endpoint returns the updated Wedding projection, matching `GET /api/wedding`.
+The request may also include `title`, `timeZone`, and `description`. Location
+updates are partial, so omitted location fields retain their existing values.
 
 ---
 
@@ -3089,6 +3106,11 @@ POST /api/public/galleries/:token/photos
 
 Photo upload flows should additionally enforce upload-count and size limits.
 
+The authentication implementation uses MongoDB fixed-window counters keyed by
+HMAC-derived client identifiers. Login is limited to 10 attempts per IP and per
+normalized email in 15 minutes; signup is limited to 5 attempts per IP per hour.
+Rejected requests return `429 RATE_LIMIT_EXCEEDED` with a `Retry-After` header.
+
 ---
 
 # 100. CSRF Considerations
@@ -3103,6 +3125,10 @@ At minimum:
 - Keep APIs same-origin with the Next.js application
 
 A separate CSRF token mechanism may be added if needed after implementation review.
+
+The current mutation routes reject mismatched `Origin` or `Host` headers before
+performing cookie-authenticated work. Requests without an `Origin` header still
+require a matching `Host` when one is supplied by the runtime.
 
 ---
 

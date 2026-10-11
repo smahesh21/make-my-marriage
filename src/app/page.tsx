@@ -338,8 +338,8 @@ function HomePage() {
             <a href="#faq">FAQ</a>
           </nav>
           <div className="header-actions">
-            <a className="sign-in-link" href="#start-planning">Sign in</a>
-            <a className="button button--header" href="#start-planning">Start planning for free</a>
+            <a className="sign-in-link" href="/login">Sign in</a>
+            <a className="button button--header" href="/signup">Start planning for free</a>
           </div>
         </div>
       </header>
@@ -353,7 +353,7 @@ function HomePage() {
                 <h1>Your wedding.<br className="hero-break" /> Beautifully organized.</h1>
                 <p>One shared space for your plans, budget, guests, and every little detail across every ceremony.</p>
                 <div className="hero-actions">
-                  <a className="button button--hero-primary" href="#start-planning">Start planning for free</a>
+                  <a className="button button--hero-primary" href="/signup">Start planning for free</a>
                   <a className="button button--hero-secondary" href="#features">Explore the features</a>
                 </div>
                 <div className="hero-note"><MaterialIcon name="check_circle" />Bring your wedding plans together, one step at a time.</div>
@@ -449,7 +449,7 @@ function HomePage() {
             <div className="final-cta-card">
               <h2>Make room for what matters most.</h2>
               <p>Bring your plans, budget, and guests together in one place, and take the next step toward your wedding day.</p>
-              <a className="button button--final" href="#top">Start planning for free</a>
+              <a className="button button--final" href="/signup">Start planning for free</a>
               <small>Free to start · Collaborative for both partners · No credit card required</small>
             </div>
           </div>
@@ -460,7 +460,7 @@ function HomePage() {
         <div className="content-shell">
           <div className="footer-grid">
             <div className="footer-brand"><a href="#top" aria-label="Make My Marriage home"><BrandLogo /></a><p>A collaborative wedding-planning platform for couples in India. Your wedding, beautifully organized.</p></div>
-            <div><h3>Product</h3><nav aria-label="Product navigation"><a href="#features">Features</a><a href="#how-it-works">How it works</a><a href="#faq">FAQ</a><a href="#start-planning">Sign in</a><a href="#start-planning">Get started</a></nav></div>
+            <div><h3>Product</h3><nav aria-label="Product navigation"><a href="#features">Features</a><a href="#how-it-works">How it works</a><a href="#faq">FAQ</a><a href="/login">Sign in</a><a href="/signup">Get started</a></nav></div>
             <div><h3>Legal</h3><nav aria-label="Legal navigation"><a href="#top">Privacy Policy</a><a href="#top">Terms of Service</a></nav></div>
           </div>
           <div className="footer-meta"><span>© 2025 Make My Marriage. All rights reserved.</span><div><a href="#top">Privacy</a><a href="#top">Terms</a></div></div>

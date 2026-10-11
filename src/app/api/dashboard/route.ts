@@ -1,0 +1,37 @@
+import { AppError } from "@/shared/errors";
+import { getAuthContext } from "@/server/auth/context";
+import { errorResponse, successResponse } from "@/server/http/responses";
+
+export async function GET() {
+  try {
+    const context = await getAuthContext();
+    if (!context) throw new AppError("UNAUTHORIZED", "Authentication is required.", 401);
+    if (!context.wedding) throw new AppError("WEDDING_NOT_FOUND", "Create a wedding workspace to continue.", 404);
+
+    const weddingDate = new Date(`${context.wedding.weddingDate}T00:00:00.000Z`);
+    const today = new Date();
+    const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    const weddingUtc = Date.UTC(weddingDate.getUTCFullYear(), weddingDate.getUTCMonth(), weddingDate.getUTCDate());
+
+    return successResponse({
+      wedding: context.wedding,
+      membership: context.membership,
+      countdown: {
+        weddingDate: context.wedding.weddingDate,
+        daysRemaining: Math.max(0, Math.ceil((weddingUtc - todayUtc) / 86_400_000)),
+      },
+      summary: {
+        events: 0,
+        tasks: { total: 0, completed: 0 },
+        guests: 0,
+        rsvps: { pending: 0, attending: 0, notAttending: 0 },
+        totalExpensePaise: 0,
+        vendors: 0,
+      },
+      upcomingEvents: [],
+      upcomingTasks: [],
+    });
+  } catch (error) {
+    return errorResponse(error);
+  }
+}

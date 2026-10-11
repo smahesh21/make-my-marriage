@@ -870,7 +870,10 @@ dietary preferences, transport, and room allocation are outside this increment.
 
 # 24. Gallery Guest Access
 
-Gallery access uses a wedding-level token rather than guest-specific tokens.
+Gallery access uses a wedding-level stable token rather than guest-specific tokens.
+The high-entropy token is persisted raw as the intentional share-link exception;
+it is excluded from ordinary wedding responses and only exposed by an
+organizer-authorized gallery-link operation.
 
 Example:
 

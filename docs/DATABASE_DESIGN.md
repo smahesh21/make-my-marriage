@@ -555,7 +555,7 @@ Wedding {
     },
 
     gallery: {
-        tokenHash: String,
+        token: String,
 
         isEnabled: Boolean,
 
@@ -708,13 +708,14 @@ Therefore gallery configuration remains embedded:
 
 ```javascript
 gallery: {
-    tokenHash,
+    token,
     isEnabled,
     guestUploadsEnabled
 }
 ```
 
-The raw gallery token exists in the shared gallery URL.
+The raw gallery token exists in the shared gallery URL and must remain stable so
+the organiser can reconstruct the URL and printed QR code later.
 
 Example:
 
@@ -722,7 +723,9 @@ Example:
 /gallery/super-secret-random-token
 ```
 
-Only the hash is persisted.
+Unlike sessions, password-reset tokens, and member invitation tokens, the
+high-entropy gallery token is persisted raw as `gallery.token`. This is the
+intentional stable-sharing exception documented in `API_DESIGN.md` §108.
 
 ---
 
@@ -738,7 +741,7 @@ The gallery token should:
 Index:
 
 ```javascript
-unique(gallery.tokenHash)
+unique(gallery.token)
 ```
 
 Changing this token would invalidate printed QR codes, so token rotation should only happen explicitly if ever introduced.
@@ -769,7 +772,7 @@ Recommended:
 ```javascript
 unique(website.slug)
 
-unique(gallery.tokenHash)
+unique(gallery.token)
 
 index(createdAt)
 ```
@@ -1347,6 +1350,11 @@ they increment `__v` and set status, attendance count, and `rsvpUpdatedAt` toget
 The wedding-scoped summary aggregates guest groups by status and sums saved
 attendance, independently of maximum party capacity. No new domain collection is
 needed. Existing HMAC-keyed MongoDB rate counters also limit public RSVP writes.
+
+Authentication rate limits use the same MongoDB counter pattern. The
+`rate_limit_counters` collection stores an HMAC-derived `keyHash`, fixed
+`windowStartedAt`, `count`, and TTL `expiresAt`; it never stores raw IP addresses
+or email identifiers.
 
 ---
 
@@ -2492,7 +2500,7 @@ expiresAt TTL
 
 ```text
 website.slug UNIQUE
-gallery.tokenHash UNIQUE
+gallery.token UNIQUE
 ```
 
 ## Memberships
@@ -2718,7 +2726,9 @@ Reasons:
 
 # 98. Token Storage Rules
 
-Secret tokens should never normally be stored raw.
+Secret tokens should never normally be stored raw. Stable public-share secrets
+are the explicit exception because a reusable URL cannot be reconstructed from a
+one-way hash.
 
 Applies to:
 
@@ -2727,7 +2737,6 @@ Sessions
 Password resets
 Wedding Member invitations
 Guest invitations
-Gallery access
 ```
 
 Database stores:
@@ -2735,6 +2744,10 @@ Database stores:
 ```text
 tokenHash
 ```
+
+Gallery access instead stores a high-entropy stable `gallery.token` with a unique
+index. It must be excluded from ordinary wedding projections and returned only by
+an explicit organizer-authorized gallery-link operation.
 
 URLs/cookies contain:
 
@@ -3122,9 +3135,11 @@ Avoid floating-point money calculations.
 
 ## Decision 9
 
-**Use hashes for secret tokens.**
+**Use hashes for non-recoverable secret tokens.**
 
-Session, invite, reset and gallery tokens should not be persisted raw.
+Session, password-reset, and member-invitation tokens are persisted as hashes.
+Stable guest/gallery sharing tokens are the explicit raw-token exception because
+their reusable URLs and QR codes must be reconstructable.
 
 ---
 
