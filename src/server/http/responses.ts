@@ -38,11 +38,15 @@ export function errorResponse(error: unknown) {
   }
 
   if (error instanceof ConfigurationError) {
+    const message = error.variable.startsWith("RESEND_")
+      ? "Email delivery is not configured yet. Add the Resend server variables and restart the application."
+      : "The wedding workspace is not configured yet. Add the server environment variables and try again.";
+
     return NextResponse.json(
       {
         error: {
           code: "SERVER_NOT_CONFIGURED",
-          message: "The wedding workspace is not configured yet. Add the server environment variables and try again.",
+          message,
         },
       },
       { status: 503 },

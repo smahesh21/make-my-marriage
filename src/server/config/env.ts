@@ -1,5 +1,5 @@
 export class ConfigurationError extends Error {
-  constructor(variable: string) {
+  constructor(public readonly variable: string) {
     super(`Missing required server configuration: ${variable}`);
     this.name = "ConfigurationError";
   }

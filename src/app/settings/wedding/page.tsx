@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 
-import { AuthBrand } from "@/app/auth/AuthBrand";
+import { WorkspaceSidebar } from "@/app/workspace/WorkspaceSidebar";
 import { updateWeddingSchema } from "@/shared/wedding/schemas";
 
 type WeddingData = {
@@ -45,6 +45,7 @@ export default function WeddingDetailsPage() {
   const [formattedAddress, setFormattedAddress] = useState("");
   const [description, setDescription] = useState("");
   const [timeZone, setTimeZone] = useState("Asia/Kolkata");
+  const [weddingName, setWeddingName] = useState("Your wedding workspace");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,6 +72,7 @@ export default function WeddingDetailsPage() {
         if (!active || !wedding) return;
         setBrideName(wedding.brideName);
         setGroomName(wedding.groomName);
+        setWeddingName(`${wedding.brideName} & ${wedding.groomName}`);
         setWeddingDate(wedding.weddingDate);
         setCity(wedding.location.city);
         setState(wedding.location.state ?? "");
@@ -131,15 +133,10 @@ export default function WeddingDetailsPage() {
   }
 
   return (
-    <main className="app-page settings-page">
-      <header className="app-header">
-        <AuthBrand className="auth-logo" markClassName="auth-logo__mark" />
-        <div className="app-header-actions">
-          <Link className="text-button" href="/dashboard">Back to dashboard</Link>
-        </div>
-      </header>
-
-      <div className="app-shell settings-shell">
+    <main className="workspace-page app-page settings-page">
+      <WorkspaceSidebar weddingName={weddingName} active="wedding" />
+      <section className="workspace-main">
+        <div className="app-shell settings-shell">
         <section className="settings-card" aria-labelledby="wedding-details-heading">
           <div className="settings-heading">
             <span className="section-eyebrow">Wedding settings</span>
@@ -167,7 +164,8 @@ export default function WeddingDetailsPage() {
             </form>
           )}
         </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -5,7 +5,7 @@ import { FormEvent, useState } from "react";
 
 type DemoState = "default" | "error" | "loading";
 
-export function LoginPanel() {
+export function LoginPanel({ inviteToken }: { inviteToken?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberDevice, setRememberDevice] = useState(true);
@@ -44,7 +44,11 @@ export function LoginPanel() {
         throw new Error(payload.error?.message ?? "Something went wrong. Please try again.");
       }
 
-      window.location.href = payload.data?.hasWedding ? "/dashboard" : "/onboarding";
+      window.location.href = inviteToken
+        ? `/member-invitations/${encodeURIComponent(inviteToken)}`
+        : payload.data?.hasWedding
+          ? "/dashboard"
+          : "/onboarding";
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Something went wrong. Please try again.");
       setDemoState("error");
@@ -145,7 +149,7 @@ export function LoginPanel() {
         </form>
 
         <footer className="login-card__footer">
-          <p>New here? <Link href="/signup">Create an account</Link></p>
+          <p>New here? <Link href={inviteToken ? `/signup?inviteToken=${encodeURIComponent(inviteToken)}` : "/signup"}>Create an account</Link></p>
           <div className="login-security"><span className="material-symbols-outlined" aria-hidden="true">lock</span>Secured with enterprise-grade session encryption.</div>
         </footer>
       </section>

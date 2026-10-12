@@ -8,7 +8,7 @@ The status log is not a replacement for the PRD, system design, database design,
 
 **Overall status:** Active development
 
-**Last updated:** 2026-10-11
+**Last updated:** 2026-10-12
 
 ## Completed milestones
 
@@ -150,13 +150,14 @@ dependent on a configured integration database.
 
 ### 8. Password recovery
 
-**Status:** Deferred / incomplete
+**Status:** Complete for the current implementation baseline
 
-The password recovery screens, routes, token handling, rate limits, and Resend adapter
-are present, but this feature is intentionally paused and is not release-ready. Live
-email delivery still requires a valid Resend API key and a verified sender domain.
-Provider setup, end-to-end email delivery, and MongoDB-backed reset verification will be
-completed as part of a later authentication milestone.
+Password recovery is now complete across the request and reset journeys. Users can
+request a generic password-reset response, receive a short-lived Resend email, choose
+a new password through the single-use token link, and return to sign in. Resetting a
+password closes all previous sessions for that account. The UI now follows the current
+Stitch-aligned authentication shell and handles missing tokens, delivery errors,
+successful requests, expired links, and successful resets.
 
 **Key areas:**
 
@@ -168,10 +169,104 @@ completed as part of a later authentication milestone.
 - `src/server/models/password-reset-token.ts`
 - `src/server/email/resend.ts`
 
-**Verification:** Focused auth schema tests, typecheck, lint, production build, and
-local route smoke tests passed. Live Resend delivery and MongoDB token/session
-invalidation remain unverified because the required provider and integration
-environments are not configured.
+**Current boundary:** Live delivery depends on the configured Resend API key, sender,
+application URL, and MongoDB environment. The checked-in `.env.example` contains only
+placeholders; local provider values remain in `.env.local`.
+
+**Verification:** Focused auth schema/security tests, typecheck, lint, production build,
+and local route smoke tests passed. MongoDB-backed delivery, token consumption, and
+session invalidation require the configured integration database for full end-to-end
+verification.
+
+### 9. Wedding Members and invitations
+
+**Status:** Complete for the current implementation baseline
+
+The Wedding Members collaboration surface is now implemented from the approved
+Stitch desktop designs with responsive behavior for smaller screens. Admins and
+Managers can view tenant-scoped members. Admins can invite a person as either an
+Admin or Manager, view active pending invitations, revoke invitations, change member
+roles, and remove members while preserving the last-Admin rule. Invitation tokens are
+stored as HMAC hashes, expire after seven days, and are only persisted when email
+delivery is configured and succeeds. Invited people can review the public invitation,
+create or sign into an account with the invited email, and accept it atomically.
+
+**Key areas:**
+
+- `src/app/settings/members/page.tsx`
+- `src/app/member-invitations/[token]/page.tsx`
+- `src/app/api/members/`
+- `src/app/api/public/member-invitations/[token]/route.ts`
+- `src/app/api/member-invitations/[token]/accept/route.ts`
+- `src/modules/members/use-cases.ts`
+- `src/server/models/wedding-member-invitation.ts`
+- `src/shared/members/schemas.ts`
+
+**Current boundary:** Live invitation email delivery remains dependent on a valid
+Resend API key and sender configuration. When those values are missing or rejected,
+the API returns a configuration or delivery error and does not leave an undeliverable
+pending invitation behind. Events and Tasks remain outside this milestone.
+
+**Verification:** Focused member schema tests, typecheck, lint, and the production
+build are required for handoff. MongoDB-backed transaction, email delivery, tenant
+isolation, and last-Admin concurrency tests remain dependent on configured integration
+environments.
+
+### 10. Stitch-aligned invitation acceptance
+
+**Status:** Complete for the current implementation baseline
+
+The member invitation acceptance page now follows the approved Stitch desktop
+reference and keeps the acceptance flow complete across loading, unavailable,
+signed-out, signed-in, email-mismatch, account-switch, and successful-acceptance
+states. The page reuses the editorial authentication shell, presents the wedding
+workspace context and invitation details, and preserves the existing secure
+server-side email check before membership acceptance.
+
+**Key areas:**
+
+- `src/app/member-invitations/[token]/page.tsx`
+- `src/app/globals.css`
+- `src/app/api/member-invitations/[token]/accept/route.ts`
+- `src/modules/members/use-cases.ts`
+
+**Verification:** Stitch reference review, browser smoke check, typecheck, lint,
+focused tests, production build, and `git diff --check` passed. The local
+development server was cleanly restarted on port 3001 after the production build
+to keep generated Next.js chunks consistent.
+
+### 11. Stitch-aligned authenticated entry and collaboration states
+
+**Status:** Complete for the current implementation baseline
+
+The sign-up and wedding setup screens now follow the current Stitch visual language
+with a centered account card, password-strength and consent guidance, a split wedding
+setup form with live workspace preview, and planning-foundation cues limited to the
+documented Events, Tasks, and Guests scope. Wedding Members now has a resilient
+loading skeleton, timeout/retry state, accessible invite-drawer focus management,
+and stacked mobile member cards instead of forcing a wide table. Stable QA fixtures
+cover empty members, active and expired invitations, signed-out access, email
+mismatch, and successful acceptance.
+
+**Key areas:**
+
+- `src/app/signup/page.tsx`
+- `src/app/auth/AuthForm.tsx`
+- `src/app/onboarding/page.tsx`
+- `src/app/settings/members/page.tsx`
+- `src/app/globals.css`
+- `tests/fixtures/member-ui-states.ts`
+
+**Current boundary:** Guest-count, budget, and other Stitch-only presentation concepts
+remain static and are not part of the onboarding API or PRD. Manager remains the
+default invitation role as the least-privilege product decision. Live MongoDB and
+email-provider integration behavior remains covered by the existing integration
+boundary rather than these static UI fixtures.
+
+**Verification:** Stitch design review, typecheck, lint, focused tests (17 passed),
+production build, local page smoke checks for `/signup`, `/onboarding`, and
+`/settings/members`, and `git diff --check` passed. The development server is
+running cleanly on port 3001.
 
 ## Status vocabulary
 

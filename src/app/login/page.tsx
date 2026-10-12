@@ -1,9 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { AuthBrand } from "@/app/auth/AuthBrand";
 import { LoginPanel } from "@/app/login/LoginPanel";
 
-export default function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ inviteToken?: string; mode?: string }> }) {
+  const { inviteToken, mode } = await searchParams;
+
+  // Older invitation emails linked to the login page directly. Bring those
+  // links to the invitation context first; the explicit sign-in CTA uses the
+  // accept mode so it can still open the authentication form.
+  if (inviteToken && mode !== "accept") {
+    redirect(`/member-invitations/${encodeURIComponent(inviteToken)}`);
+  }
+
   return (
     <main className="auth-design-page">
       <header className="auth-design-header">
@@ -28,7 +38,7 @@ export default function LoginPage() {
         <div className="auth-design-content">
           <div className="auth-design-ambient auth-design-ambient--top" aria-hidden="true" />
           <div className="auth-design-ambient auth-design-ambient--bottom" aria-hidden="true" />
-          <LoginPanel />
+          <LoginPanel inviteToken={inviteToken} />
         </div>
         <footer className="auth-design-footer">
           <p>© 2025 Make My Marriage Technologies. Crafted with architectural warmth.</p>

@@ -6,12 +6,13 @@ Make My Marriage is a calm, editorial workspace for the people carrying an India
 
 ## Color palette
 
-- **Warm Ivory** (`#F7F5F0`) — primary canvas and page background.
+- **Warm Ivory** (`#FBF9F4`) — primary canvas and page background.
 - **Paper White** (`#FFFFFF`) — elevated surfaces and form controls.
-- **Charcoal Ink** (`#292C29`) — primary text; never use pure black.
-- **Muted Olive** (`#686B65`) — supporting copy, metadata, and labels.
-- **Soft Stone** (`#E8E4DB`) — borders and structural dividers.
-- **Muted Sage** (`#75836D`) — the single accent for primary actions and selected states.
+- **Charcoal Ink** (`#1B1C19`) — primary text; never use pure black.
+- **Muted Olive** (`#5C5F5B`) — supporting copy, metadata, and labels.
+- **Soft Stone** (`#E4E2DD`) — borders and structural dividers.
+- **Deep Sage** (`#52604C`) — primary actions, selected states, and focus accents.
+- **Muted Sage** (`#75836D`) — restrained brand highlight and secondary accent tint.
 
 Do not introduce purple, neon, oversaturated gradients, or a second competing accent.
 

@@ -931,6 +931,11 @@ Create invitation record
 Send email immediately through Resend
 ```
 
+Member invitation links expire seven days after creation. The invitation record is
+created only when the required email-delivery configuration is present, and it is
+removed again if Resend rejects delivery. A pending invitation is not returned as
+success when its email could not be sent.
+
 ### Response
 
 ```json
@@ -954,6 +959,10 @@ Send email immediately through Resend
 Admin only.
 
 Returns pending invitations for the current Wedding.
+
+Expired pending invitations are treated as unavailable and are not included in the
+active pending list. Invitation expiry is derived from `expiresAt`; the record is
+retained for audit history when it is accepted or revoked.
 
 ---
 
@@ -991,7 +1000,11 @@ Returns enough information to render the invitation page.
     "wedding": {
       "brideName": "Princi",
       "groomName": "Akshay",
-      "weddingDate": "2027-02-14"
+      "weddingDate": "2027-02-14",
+      "location": {
+        "city": "Udaipur",
+        "state": "Rajasthan"
+      }
     },
     "requiresLogin": true
   }
