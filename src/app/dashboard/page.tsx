@@ -3,14 +3,16 @@
 import Link from "next/link";
 
 import { WorkspaceSidebar } from "@/app/workspace/WorkspaceSidebar";
+import { formatEventDateTime } from "@/shared/events/time";
 import { useEffect, useState } from "react";
 
 type DashboardData = {
   user?: { name: string };
-  wedding: { brideName: string; groomName: string; weddingDate: string; location: { city: string } };
+  wedding: { brideName: string; groomName: string; weddingDate: string; timeZone: string; location: { city: string } };
   membership: { role: string };
   countdown: { daysRemaining: number };
   summary: { events: number; tasks: { total: number; completed: number }; guests: number; vendors: number };
+  upcomingEvents: Array<{ id: string; name: string; startsAt: string; venueName: string | null }>;
 };
 
 export default function DashboardPage() {
@@ -53,7 +55,7 @@ export default function DashboardPage() {
           <article className="workspace-card"><span className="material-symbols-outlined">groups</span><strong>{data.summary.guests}</strong><span>Guests added</span></article>
           <article className="workspace-card"><span className="material-symbols-outlined">storefront</span><strong>{data.summary.vendors}</strong><span>Vendors saved</span></article>
         </section>
-        <section className="dashboard-empty"><span className="material-symbols-outlined">celebration</span><h2>Your shared plan starts here.</h2><p>Events, tasks, guests, invitations, and every thoughtful detail can grow from this first workspace.</p><div className="dashboard-empty__actions"><button className="button button--auth" type="button">Add your first event</button><button className="button button--quiet" type="button">Create a task</button></div><small>Planning modules will open as you add them.</small></section>
+        <section className="dashboard-planning"><div className="dashboard-planning__header"><div><span className="section-eyebrow">The next moments</span><h2>Upcoming events</h2></div><Link className="text-button" href="/events">View schedule</Link></div>{data.upcomingEvents.length > 0 ? <div className="dashboard-events-list">{data.upcomingEvents.map((event) => <Link className="dashboard-event-row" href="/events" key={event.id}><span className="dashboard-event-row__icon material-symbols-outlined" aria-hidden="true">event</span><span><strong>{event.name}</strong><small>{formatEventDateTime(event.startsAt, data.wedding.timeZone)}{event.venueName ? ` · ${event.venueName}` : ""}</small></span><span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>)}</div> : <div className="dashboard-empty"><span className="material-symbols-outlined">celebration</span><h2>Your shared plan starts here.</h2><p>Events, tasks, guests, invitations, and every thoughtful detail can grow from this first workspace.</p><div className="dashboard-empty__actions"><Link className="button button--auth" href="/events">Add your first event</Link><button className="button button--quiet" type="button">Create a task</button></div><small>Planning modules will open as you add them.</small></div>}</section>
         </div>
       </section>
     </main>

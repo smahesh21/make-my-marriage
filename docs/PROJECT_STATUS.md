@@ -8,7 +8,7 @@ The status log is not a replacement for the PRD, system design, database design,
 
 **Overall status:** Active development
 
-**Last updated:** 2026-10-12
+**Last updated:** 2026-10-13
 
 ## Completed milestones
 
@@ -267,6 +267,38 @@ boundary rather than these static UI fixtures.
 production build, local page smoke checks for `/signup`, `/onboarding`, and
 `/settings/members`, and `git diff --check` passed. The development server is
 running cleanly on port 3001.
+
+### 12. Wedding Events and Schedule
+
+**Status:** Complete for the current implementation baseline
+
+The Events & Schedule workspace is now implemented against the approved Stitch
+desktop design and made responsive for smaller screens. Wedding Members can list
+active events in timeline order, create preset or custom events, edit event
+details, and archive events without breaking future relationships. Event times are
+stored as UTC instants and rendered in the wedding timezone. The dashboard now
+shows the active event count and the nearest upcoming events when available.
+
+**Key areas:**
+
+- `src/app/events/page.tsx`
+- `src/app/api/events/`
+- `src/modules/events/use-cases.ts`
+- `src/server/models/wedding-event.ts`
+- `src/shared/events/schemas.ts`
+- `src/shared/events/time.ts`
+- `src/app/workspace/WorkspaceSidebar.tsx`
+- `src/app/api/dashboard/route.ts`
+
+**Current boundary:** Event cover-image uploads remain deferred as documented in
+the API design. Archived events are hidden from the active schedule but retained
+for future task, guest, vendor, expense, and photo relationships. MongoDB-backed
+event persistence and authorization require the configured integration database
+for full end-to-end verification.
+
+**Verification:** Stitch screen review, focused event schema tests, typecheck,
+lint, production build, local smoke checks for `/events` and protected event API
+routes, and `git diff --check` passed.
 
 ## Status vocabulary
 

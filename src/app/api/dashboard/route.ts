@@ -1,6 +1,7 @@
 import { AppError } from "@/shared/errors";
 import { getAuthContext } from "@/server/auth/context";
 import { errorResponse, successResponse } from "@/server/http/responses";
+import { listWeddingEvents } from "@/modules/events/use-cases";
 
 export async function GET() {
   try {
@@ -12,6 +13,8 @@ export async function GET() {
     const today = new Date();
     const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
     const weddingUtc = Date.UTC(weddingDate.getUTCFullYear(), weddingDate.getUTCMonth(), weddingDate.getUTCDate());
+    const events = await listWeddingEvents(context.membership?.weddingId ?? "", { includeArchived: false });
+    const upcomingEvents = events.filter((event) => new Date(event.startsAt).getTime() >= Date.now()).slice(0, 3);
 
     return successResponse({
       wedding: context.wedding,
@@ -21,14 +24,14 @@ export async function GET() {
         daysRemaining: Math.max(0, Math.ceil((weddingUtc - todayUtc) / 86_400_000)),
       },
       summary: {
-        events: 0,
+        events: events.length,
         tasks: { total: 0, completed: 0 },
         guests: 0,
         rsvps: { pending: 0, attending: 0, notAttending: 0 },
         totalExpensePaise: 0,
         vendors: 0,
       },
-      upcomingEvents: [],
+      upcomingEvents,
       upcomingTasks: [],
     });
   } catch (error) {

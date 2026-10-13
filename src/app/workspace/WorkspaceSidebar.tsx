@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { AuthBrand } from "@/app/auth/AuthBrand";
 
-type WorkspaceSection = "overview" | "members" | "wedding";
+type WorkspaceSection = "overview" | "members" | "events" | "wedding";
 
 type WorkspaceSidebarProps = {
   weddingName?: string;
@@ -25,7 +25,7 @@ export function WorkspaceSidebar({ weddingName = "Your wedding workspace", activ
         <Link className={active === "overview" ? "is-active" : ""} href="/dashboard" aria-current={active === "overview" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">space_dashboard</span>Overview</Link>
         <span className="members-nav__section">Collaborate</span>
         <Link className={active === "members" ? "is-active" : ""} href="/settings/members" aria-current={active === "members" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">group</span>Wedding Members</Link>
-        <span className="members-nav__disabled"><span className="material-symbols-outlined" aria-hidden="true">event</span>Events &amp; schedule</span>
+        <Link className={active === "events" ? "is-active" : ""} href="/events" aria-current={active === "events" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">event</span>Events &amp; schedule</Link>
         <span className="members-nav__disabled"><span className="material-symbols-outlined" aria-hidden="true">checklist</span>Tasks</span>
         <span className="members-nav__section">Workspace</span>
         <Link className={active === "wedding" ? "is-active" : ""} href="/settings/wedding" aria-current={active === "wedding" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">tune</span>Wedding details</Link>
