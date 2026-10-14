@@ -11,8 +11,9 @@ Make My Marriage is a calm, editorial workspace for the people carrying an India
 - **Charcoal Ink** (`#1B1C19`) — primary text; never use pure black.
 - **Muted Olive** (`#5C5F5B`) — supporting copy, metadata, and labels.
 - **Soft Stone** (`#E4E2DD`) — borders and structural dividers.
-- **Deep Sage** (`#52604C`) — primary actions, selected states, and focus accents.
-- **Muted Sage** (`#75836D`) — restrained brand highlight and secondary accent tint.
+- **Deep Sage** (`#52604C`) — structural accents, selected text, and workspace navigation.
+- **Muted Sage** (`#75836D`) — primary action surfaces and restrained brand highlight.
+- **Muted Sage hover** (`#606D59`) — pressed and hover state for primary actions.
 
 Do not introduce purple, neon, oversaturated gradients, or a second competing accent.
 
@@ -28,10 +29,11 @@ Generic serif fonts and dashboard serif typography are banned. Inter is reserved
 ## Layout and components
 
 - Use an asymmetric grid rather than three equal feature cards.
-- Contain content at `min(1200px, calc(100% - 2 * gutter))` with generous whitespace.
+- Contain content at `min(1440px, calc(100% - 2 * gutter))` with generous whitespace.
 - Collapse every multi-column composition below `768px`.
 - Full-height surfaces use `min-height: 100dvh`, never `100vh` or `h-screen`.
-- Every interactive element has at least a `44px` touch target.
+- Standard text/action buttons use a compact `32px` height including padding;
+  icon-only controls may remain larger when needed for comfortable interaction.
 - Cards use quiet borders and warm, diffused shadows only when elevation communicates hierarchy.
 - Primary buttons are solid sage with tactile press feedback; secondary actions are quiet text links or outlined controls.
 

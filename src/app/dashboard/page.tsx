@@ -11,8 +11,9 @@ type DashboardData = {
   wedding: { brideName: string; groomName: string; weddingDate: string; timeZone: string; location: { city: string } };
   membership: { role: string };
   countdown: { daysRemaining: number };
-  summary: { events: number; tasks: { total: number; completed: number }; guests: number; vendors: number };
+  summary: { events: number; tasks: { total: number; completed: number; dueSoon?: number; assignedToCurrent?: number }; guests: number; vendors: number };
   upcomingEvents: Array<{ id: string; name: string; startsAt: string; venueName: string | null }>;
+  upcomingTasks: Array<{ id: string; title: string; dueDate: string | null; priority: string; event: { name: string } | null }>;
 };
 
 export default function DashboardPage() {
@@ -44,7 +45,7 @@ export default function DashboardPage() {
 
   return (
     <main className="workspace-page app-page">
-      <WorkspaceSidebar weddingName={`${data.wedding.brideName} & ${data.wedding.groomName}`} active="overview" />
+      <WorkspaceSidebar active="overview" />
       <section className="workspace-main">
         <header className="workspace-topbar"><div><span className="section-eyebrow">{data.membership.role} workspace</span><p>Everything important, in one calm place.</p></div><Link className="text-button" href="/settings/wedding">Wedding details</Link></header>
         <div className="app-shell">
@@ -55,7 +56,7 @@ export default function DashboardPage() {
           <article className="workspace-card"><span className="material-symbols-outlined">groups</span><strong>{data.summary.guests}</strong><span>Guests added</span></article>
           <article className="workspace-card"><span className="material-symbols-outlined">storefront</span><strong>{data.summary.vendors}</strong><span>Vendors saved</span></article>
         </section>
-        <section className="dashboard-planning"><div className="dashboard-planning__header"><div><span className="section-eyebrow">The next moments</span><h2>Upcoming events</h2></div><Link className="text-button" href="/events">View schedule</Link></div>{data.upcomingEvents.length > 0 ? <div className="dashboard-events-list">{data.upcomingEvents.map((event) => <Link className="dashboard-event-row" href="/events" key={event.id}><span className="dashboard-event-row__icon material-symbols-outlined" aria-hidden="true">event</span><span><strong>{event.name}</strong><small>{formatEventDateTime(event.startsAt, data.wedding.timeZone)}{event.venueName ? ` · ${event.venueName}` : ""}</small></span><span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>)}</div> : <div className="dashboard-empty"><span className="material-symbols-outlined">celebration</span><h2>Your shared plan starts here.</h2><p>Events, tasks, guests, invitations, and every thoughtful detail can grow from this first workspace.</p><div className="dashboard-empty__actions"><Link className="button button--auth" href="/events">Add your first event</Link><button className="button button--quiet" type="button">Create a task</button></div><small>Planning modules will open as you add them.</small></div>}</section>
+        <section className="dashboard-planning"><div className="dashboard-planning__header"><div><span className="section-eyebrow">The next moments</span><h2>Upcoming events &amp; tasks</h2></div><div className="dashboard-planning__links"><Link className="text-button" href="/events">View schedule</Link><Link className="text-button" href="/tasks">View checklist</Link></div></div><div className="dashboard-planning-grid"><div><span className="dashboard-planning__label">Events</span>{data.upcomingEvents.length > 0 ? <div className="dashboard-events-list">{data.upcomingEvents.map((event) => <Link className="dashboard-event-row" href="/events" key={event.id}><span className="dashboard-event-row__icon material-symbols-outlined" aria-hidden="true">event</span><span><strong>{event.name}</strong><small>{formatEventDateTime(event.startsAt, data.wedding.timeZone)}{event.venueName ? ` · ${event.venueName}` : ""}</small></span><span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>)}</div> : <p className="dashboard-planning__empty">No events are planned yet.</p>}</div><div><span className="dashboard-planning__label">Tasks</span>{data.upcomingTasks.length > 0 ? <div className="dashboard-events-list">{data.upcomingTasks.map((task) => <Link className="dashboard-event-row" href="/tasks" key={task.id}><span className="dashboard-event-row__icon material-symbols-outlined" aria-hidden="true">checklist</span><span><strong>{task.title}</strong><small>{task.dueDate ? `Due ${formatEventDateTime(task.dueDate, data.wedding.timeZone)}` : "No deadline"}{task.event ? ` · ${task.event.name}` : ""}</small></span><span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>)}</div> : <div className="dashboard-planning__empty"><p>No upcoming tasks yet.</p><Link className="text-button" href="/tasks">Add a task</Link></div>}</div></div></section>
         </div>
       </section>
     </main>

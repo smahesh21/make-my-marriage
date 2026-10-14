@@ -41,7 +41,7 @@ function formatDate(value: string) {
 function MembersLoadingState() {
   return (
     <main className="members-page members-page--loading" aria-busy="true">
-      <aside className="members-sidebar members-sidebar--skeleton" aria-hidden="true"><span className="members-skeleton members-skeleton--brand" /><span className="members-skeleton members-skeleton--wedding" /><span className="members-skeleton" /><span className="members-skeleton" /><span className="members-skeleton" /></aside>
+      <aside className="members-sidebar members-sidebar--skeleton" aria-hidden="true"><span className="members-skeleton members-skeleton--brand" /><span className="members-skeleton" /><span className="members-skeleton" /><span className="members-skeleton" /></aside>
       <section className="members-content members-loading" aria-live="polite" role="status">
         <div className="members-loading__header"><span className="members-skeleton members-skeleton--eyebrow" /><span className="members-skeleton members-skeleton--title" /><span className="members-skeleton members-skeleton--copy" /></div>
         <div className="members-loading__metrics"><span /><span /><span /></div>
@@ -71,7 +71,6 @@ export default function WeddingMembersPage() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentRole, setCurrentRole] = useState<Role | null>(null);
-  const [weddingName, setWeddingName] = useState("Your wedding workspace");
   const [isLoading, setIsLoading] = useState(true);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -110,9 +109,6 @@ export default function WeddingMembersPage() {
     setMembers(memberPayload.data ?? []);
     setCurrentUserId(authPayload.data?.user?.id ?? null);
     setCurrentRole(authPayload.data?.membership?.role ?? null);
-    const wedding = authPayload.data?.wedding;
-    if (wedding) setWeddingName(`${wedding.brideName} & ${wedding.groomName}`);
-
     if (authPayload.data?.membership?.role === "ADMIN") {
       const invitationResponse = await fetch("/api/members/invitations");
       const invitationPayload = (await invitationResponse.json()) as { data?: Invitation[]; error?: ApiError };
@@ -284,7 +280,7 @@ export default function WeddingMembersPage() {
 
   return (
     <main className="members-page">
-      <WorkspaceSidebar weddingName={weddingName} active="members" />
+      <WorkspaceSidebar active="members" />
 
       <section className="members-content" aria-labelledby="members-heading">
         <header className="members-content__header">

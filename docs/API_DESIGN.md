@@ -846,7 +846,9 @@ Returns aggregated dashboard information.
       "events": 6,
       "tasks": {
         "total": 48,
-        "completed": 32
+        "completed": 32,
+        "dueSoon": 5,
+        "assignedToCurrent": 8
       },
       "guests": 186,
       "rsvps": {
@@ -863,7 +865,10 @@ Returns aggregated dashboard information.
 }
 ```
 
-The dashboard endpoint is intentionally an aggregation endpoint.
+`summary.tasks.dueSoon` counts incomplete tasks due today or within the next
+seven wedding-local days. `summary.tasks.assignedToCurrent` counts tasks
+assigned to the authenticated membership. The dashboard endpoint is
+intentionally an aggregation endpoint.
 
 This is preferable to requiring the frontend to make 8 independent requests.
 

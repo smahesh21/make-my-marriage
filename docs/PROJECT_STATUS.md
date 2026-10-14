@@ -8,7 +8,7 @@ The status log is not a replacement for the PRD, system design, database design,
 
 **Overall status:** Active development
 
-**Last updated:** 2026-10-13
+**Last updated:** 2026-10-14
 
 ## Completed milestones
 
@@ -299,6 +299,92 @@ for full end-to-end verification.
 **Verification:** Stitch screen review, focused event schema tests, typecheck,
 lint, production build, local smoke checks for `/events` and protected event API
 routes, and `git diff --check` passed.
+
+### 13. Wedding Tasks and Checklist
+
+**Status:** Complete for the current implementation baseline
+
+The Tasks & Checklist workspace is now implemented against the approved Stitch
+desktop design and made responsive for smaller screens. Wedding Members can
+create, edit, complete, reopen, filter, search, and delete tenant-scoped tasks.
+Tasks support descriptions, wedding members, active events, wedding-local due
+dates, priorities, and TODO/IN_PROGRESS/COMPLETED status. The dashboard now
+includes task totals, due-soon counts, current-member assignments, and upcoming
+tasks. The UI includes All Tasks, My Tasks, and Completed Tasks views plus a
+print-friendly checklist view.
+
+**Key areas:**
+
+- `src/app/tasks/page.tsx`
+- `src/app/api/tasks/`
+- `src/modules/tasks/use-cases.ts`
+- `src/server/models/wedding-task.ts`
+- `src/shared/tasks/schemas.ts`
+- `src/app/api/dashboard/route.ts`
+- `src/app/dashboard/page.tsx`
+- `src/app/workspace/WorkspaceSidebar.tsx`
+
+**Current boundary:** Comments, attachments, subtasks, dependencies, and CSV
+export remain outside the documented V1 scope. Existing archived-event and
+removed-member associations remain visible for safe editing, while new task
+associations require active wedding resources. MongoDB-backed task persistence,
+authorization, conflict handling, and tenant-isolation behavior require the
+configured integration database for full end-to-end verification.
+
+**Verification:** Focused task schema tests, route smoke tests, typecheck, lint,
+production build, and `git diff --check` passed.
+
+### 14. Refined Stitch design system pass
+
+**Status:** Complete for the current implementation baseline
+
+The implemented product screens now share the latest Stitch visual treatment:
+warm ivory surfaces, muted sage action states, quiet card borders, consistent
+44px controls and focus rings, editorial heading rhythm, sans-serif metric
+numerals, persistent workspace navigation, and one-column compositions below
+the mobile breakpoint. The Tasks page also now correctly unwraps its paginated
+API response instead of attempting to render the response envelope as an array.
+
+**Key areas:**
+
+- `src/app/globals.css`
+- `src/app/tasks/page.tsx`
+- `DESIGN.md`
+- `docs/PROJECT_STATUS.md`
+
+**Current boundary:** The Stitch Guests & RSVP and Expenses Ledger screens are
+design references for later product milestones and remain inactive because those
+feature flows are not yet implemented in the current PRD scope.
+
+**Verification:** Refined Stitch design-system review, browser smoke checks for
+landing, sign-in, sign-up, dashboard, Events, Tasks, Wedding Members, Wedding
+details, and invitation states, focused tests (27 passed), typecheck, lint,
+production build, and clean generated Next.js output regeneration passed.
+
+### 15. Compact authenticated workspace chrome
+
+**Status:** Complete for the current implementation baseline
+
+Authenticated workspace screens now use a consistent 56px topbar with 12px by
+16px padding, an 8px navigation rhythm, and compact 32px text/action buttons.
+The redundant Current Workspace sidebar card and its loading placeholders were
+removed so the primary navigation has more room for the wedding workflow.
+Icon-only controls retain their larger interaction area where needed.
+
+**Key areas:**
+
+- `src/app/globals.css`
+- `src/app/workspace/WorkspaceSidebar.tsx`
+- `src/app/dashboard/page.tsx`
+- `src/app/events/page.tsx`
+- `src/app/tasks/page.tsx`
+- `src/app/settings/members/page.tsx`
+- `src/app/settings/wedding/page.tsx`
+
+**Verification:** Browser measurements confirmed the 56px topbar, 12px by 16px
+topbar padding, 32px action buttons, 8px sidebar spacing, and removed workspace
+card. Typecheck, lint, focused tests (27 passed), production build, and
+`git diff --check` passed.
 
 ## Status vocabulary
 

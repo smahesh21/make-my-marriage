@@ -45,7 +45,6 @@ export default function WeddingDetailsPage() {
   const [formattedAddress, setFormattedAddress] = useState("");
   const [description, setDescription] = useState("");
   const [timeZone, setTimeZone] = useState("Asia/Kolkata");
-  const [weddingName, setWeddingName] = useState("Your wedding workspace");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +71,6 @@ export default function WeddingDetailsPage() {
         if (!active || !wedding) return;
         setBrideName(wedding.brideName);
         setGroomName(wedding.groomName);
-        setWeddingName(`${wedding.brideName} & ${wedding.groomName}`);
         setWeddingDate(wedding.weddingDate);
         setCity(wedding.location.city);
         setState(wedding.location.state ?? "");
@@ -134,7 +132,7 @@ export default function WeddingDetailsPage() {
 
   return (
     <main className="workspace-page app-page settings-page">
-      <WorkspaceSidebar weddingName={weddingName} active="wedding" />
+      <WorkspaceSidebar active="wedding" />
       <section className="workspace-main">
         <div className="app-shell settings-shell">
         <section className="settings-card" aria-labelledby="wedding-details-heading">

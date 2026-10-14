@@ -100,7 +100,7 @@ function toForm(event: WeddingEvent, timeZone: string): EventForm {
 function EventsLoadingState() {
   return (
     <main className="workspace-page events-page--loading" aria-busy="true">
-      <aside className="members-sidebar members-sidebar--skeleton" aria-hidden="true"><span className="members-skeleton members-skeleton--brand" /><span className="members-skeleton members-skeleton--wedding" /><span className="members-skeleton" /><span className="members-skeleton" /><span className="members-skeleton" /></aside>
+      <aside className="members-sidebar members-sidebar--skeleton" aria-hidden="true"><span className="members-skeleton members-skeleton--brand" /><span className="members-skeleton" /><span className="members-skeleton" /><span className="members-skeleton" /></aside>
       <section className="events-content events-loading" aria-live="polite" role="status">
         <div className="events-loading__header"><span className="members-skeleton members-skeleton--eyebrow" /><span className="members-skeleton members-skeleton--title" /><span className="members-skeleton members-skeleton--copy" /></div>
         <div className="events-loading__metrics"><span /><span /><span /></div>
@@ -127,7 +127,6 @@ function EventsLoadError({ message, onRetry }: { message: string; onRetry: () =>
 
 export default function EventsPage() {
   const [events, setEvents] = useState<WeddingEvent[]>([]);
-  const [weddingName, setWeddingName] = useState("Your wedding workspace");
   const [timeZone, setTimeZone] = useState("Asia/Kolkata");
   const [currentRole, setCurrentRole] = useState<"ADMIN" | "MANAGER" | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -162,7 +161,6 @@ export default function EventsPage() {
       setEvents(sortEvents(eventsPayload.data ?? []));
       const wedding = authPayload.data?.wedding;
       if (wedding) {
-        setWeddingName(`${wedding.brideName} & ${wedding.groomName}`);
         setTimeZone(wedding.timeZone);
       }
       setCurrentRole(authPayload.data?.membership?.role ?? null);
@@ -263,7 +261,7 @@ export default function EventsPage() {
 
   return (
     <main className="workspace-page events-page">
-      <WorkspaceSidebar weddingName={weddingName} active="events" />
+      <WorkspaceSidebar active="events" />
       <section className="events-content">
         <header className="workspace-topbar"><div><span className="section-eyebrow">{currentRole ?? "Member"} workspace</span><p>Give every meaningful moment its place.</p></div><Link className="text-button" href="/settings/wedding">Wedding details</Link></header>
         <div className="events-shell">

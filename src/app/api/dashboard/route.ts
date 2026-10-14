@@ -2,6 +2,7 @@ import { AppError } from "@/shared/errors";
 import { getAuthContext } from "@/server/auth/context";
 import { errorResponse, successResponse } from "@/server/http/responses";
 import { listWeddingEvents } from "@/modules/events/use-cases";
+import { getWeddingTaskDashboard } from "@/modules/tasks/use-cases";
 
 export async function GET() {
   try {
@@ -13,7 +14,10 @@ export async function GET() {
     const today = new Date();
     const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
     const weddingUtc = Date.UTC(weddingDate.getUTCFullYear(), weddingDate.getUTCMonth(), weddingDate.getUTCDate());
-    const events = await listWeddingEvents(context.membership?.weddingId ?? "", { includeArchived: false });
+    const [events, taskDashboard] = await Promise.all([
+      listWeddingEvents(context.membership?.weddingId ?? "", { includeArchived: false }),
+      getWeddingTaskDashboard(context.membership?.weddingId ?? "", context.membership?.id ?? ""),
+    ]);
     const upcomingEvents = events.filter((event) => new Date(event.startsAt).getTime() >= Date.now()).slice(0, 3);
 
     return successResponse({
@@ -25,14 +29,19 @@ export async function GET() {
       },
       summary: {
         events: events.length,
-        tasks: { total: 0, completed: 0 },
+        tasks: {
+          total: taskDashboard.summary.total,
+          completed: taskDashboard.summary.completed,
+          dueSoon: taskDashboard.summary.dueSoon,
+          assignedToCurrent: taskDashboard.summary.assignedToCurrent,
+        },
         guests: 0,
         rsvps: { pending: 0, attending: 0, notAttending: 0 },
         totalExpensePaise: 0,
         vendors: 0,
       },
       upcomingEvents,
-      upcomingTasks: [],
+      upcomingTasks: taskDashboard.upcomingTasks,
     });
   } catch (error) {
     return errorResponse(error);

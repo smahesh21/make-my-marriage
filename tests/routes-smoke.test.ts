@@ -5,7 +5,7 @@ const smokeEnabled = Boolean(process.env.SMOKE_BASE_URL);
 const smokeTestTimeout = 60_000;
 
 describe("application route smoke", () => {
-  for (const route of ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/onboarding", "/dashboard", "/events", "/settings/wedding", "/settings/members", "/member-invitations/test-token"]) {
+  for (const route of ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/onboarding", "/dashboard", "/events", "/tasks", "/settings/wedding", "/settings/members", "/member-invitations/test-token"]) {
     it.skipIf(!smokeEnabled)(`serves ${route}`, async () => {
       const response = await fetch(new URL(route, smokeBaseUrl));
 
@@ -37,6 +37,12 @@ describe("application route smoke", () => {
 
   it.skipIf(!smokeEnabled)("protects wedding event listing for a fresh session", async () => {
     const response = await fetch(new URL("/api/events", smokeBaseUrl));
+
+    expect(response.status).toBe(401);
+  }, smokeTestTimeout);
+
+  it.skipIf(!smokeEnabled)("protects wedding task listing for a fresh session", async () => {
+    const response = await fetch(new URL("/api/tasks", smokeBaseUrl));
 
     expect(response.status).toBe(401);
   }, smokeTestTimeout);
