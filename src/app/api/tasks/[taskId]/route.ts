@@ -29,7 +29,10 @@ export async function PATCH(request: Request, routeContext: RouteContext) {
     assertSameOrigin(request);
     const context = await requireWeddingContext();
     const { taskId } = await routeContext.params;
-    const input = updateTaskSchema.parse(await request.json());
+    const body = await request.json().catch(() => {
+      throw new AppError("VALIDATION_ERROR", "Send a valid JSON request body.", 400);
+    });
+    const input = updateTaskSchema.parse(body);
     return successResponse(await updateWeddingTask(context.membership!.weddingId, taskId, input));
   } catch (error) {
     return errorResponse(error);

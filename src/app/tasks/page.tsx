@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { requestTaskApi, TaskApiError } from "@/app/tasks/api";
 import { WorkspaceSidebar } from "@/app/workspace/WorkspaceSidebar";
 import { dateTimeInputToIso, toDateInputValue } from "@/shared/events/time";
 import { type TaskPriority, type TaskStatus } from "@/shared/tasks/schemas";
@@ -30,7 +31,6 @@ type Member = {
 };
 
 type EventOption = { id: string; name: string };
-type ApiError = { code?: string; message?: string; fields?: Record<string, string[] | undefined> };
 type TaskPagination = { page: number; limit: number; total: number; totalPages: number };
 type TaskTab = "all" | "mine" | "completed";
 type TaskFilter = "ALL" | TaskStatus;
@@ -131,17 +131,22 @@ export default function TasksPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const loadRequestId = useRef(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [form, setForm] = useState<TaskForm>(defaultForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actingId, setActingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
+    const requestId = ++loadRequestId.current;
     setIsLoading(true);
-    setError(null);
+    setLoadError(null);
     try {
       const params = new URLSearchParams({ page: String(page), limit: "100" });
       if (tab === "mine") params.set("mine", "true");
@@ -151,58 +156,59 @@ export default function TasksPage() {
       if (eventFilter !== "all") params.set("eventId", eventFilter);
       if (assigneeFilter !== "all") params.set("assignedMembershipId", assigneeFilter);
 
-      const [taskResponse, eventResponse, memberResponse, authResponse, dashboardResponse] = await Promise.all([
-        fetch(`/api/tasks?${params.toString()}`),
-        fetch("/api/events"),
-        fetch("/api/members"),
-        fetch("/api/auth/me"),
-        fetch("/api/dashboard"),
+      const [taskPayload, eventPayload, memberPayload, authPayload, dashboardPayload] = await Promise.all([
+        requestTaskApi<{ data: { data: Task[]; pagination: TaskPagination } }>(`/api/tasks?${params.toString()}`),
+        requestTaskApi<{ data: EventOption[] }>("/api/events"),
+        requestTaskApi<{ data: Member[] }>("/api/members"),
+        requestTaskApi<{ data: { membership: { role: "ADMIN" | "MANAGER" } | null; wedding: { brideName: string; groomName: string; timeZone: string } | null } }>("/api/auth/me"),
+        requestTaskApi<{ data: { summary: { tasks: DashboardSummary } } }>("/api/dashboard"),
       ]);
-      const taskPayload = (await taskResponse.json()) as { data?: { data?: Task[]; pagination?: TaskPagination }; error?: ApiError };
-      const eventPayload = (await eventResponse.json()) as { data?: Array<{ id: string; name: string }>; error?: ApiError };
-      const memberPayload = (await memberResponse.json()) as { data?: Member[]; error?: ApiError };
-      const authPayload = (await authResponse.json()) as { data?: { membership?: { role: "ADMIN" | "MANAGER" } | null; wedding?: { brideName: string; groomName: string; timeZone: string } | null }; error?: ApiError };
-      const dashboardPayload = (await dashboardResponse.json()) as { data?: { summary?: { tasks?: Partial<DashboardSummary> } }; error?: ApiError };
-
-      if ([taskResponse, authResponse].some((response) => response.status === 401)) {
-        window.location.href = "/login";
-        return;
-      }
-      if (taskResponse.status === 404 || authPayload.data?.membership === null) {
+      if (requestId !== loadRequestId.current) return;
+      if (authPayload.data?.membership === null || authPayload.data?.wedding === null) {
         window.location.href = "/onboarding";
         return;
       }
-      if (!taskResponse.ok) throw new Error(taskPayload.error?.message ?? "Unable to load your tasks.");
-      if (!eventResponse.ok) throw new Error(eventPayload.error?.message ?? "Unable to load your wedding events.");
-      if (!memberResponse.ok) throw new Error(memberPayload.error?.message ?? "Unable to load wedding members.");
 
-      const taskData = taskPayload.data?.data ?? [];
-      const taskPagination = taskPayload.data?.pagination ?? { page, limit: 100, total: 0, totalPages: 0 };
+      const taskData = taskPayload.data?.data;
+      const taskPagination = taskPayload.data?.pagination;
+      const taskSummary = dashboardPayload.data?.summary?.tasks;
+      if (!Array.isArray(taskData) || !taskPagination || !Array.isArray(eventPayload.data) || !Array.isArray(memberPayload.data)
+        || !authPayload.data?.membership || !authPayload.data.wedding || !taskSummary
+        || ![taskSummary.total, taskSummary.completed, taskSummary.dueSoon, taskSummary.assignedToCurrent].every(Number.isFinite)) {
+        throw new Error("The server returned an unexpected response. Please try again.");
+      }
       setTasks(taskData);
       setPagination(taskPagination);
-      setEvents(eventPayload.data ?? []);
-      setMembers(memberPayload.data ?? []);
+      setEvents(eventPayload.data);
+      setMembers(memberPayload.data);
       const wedding = authPayload.data?.wedding;
       if (wedding) {
         setWeddingName(`${wedding.brideName} & ${wedding.groomName}`);
         setTimeZone(wedding.timeZone);
       }
       setCurrentRole(authPayload.data?.membership?.role ?? null);
-      const taskSummary = dashboardPayload.data?.summary?.tasks;
-      setDashboardSummary({
-        total: taskSummary?.total ?? taskPagination.total,
-        completed: taskSummary?.completed ?? 0,
-        dueSoon: taskSummary?.dueSoon ?? 0,
-        assignedToCurrent: taskSummary?.assignedToCurrent ?? 0,
-      });
+      setDashboardSummary(taskSummary);
+      setHasLoaded(true);
     } catch (loadError: unknown) {
-      setError(loadError instanceof Error ? loadError.message : "Unable to load your tasks.");
+      if (requestId !== loadRequestId.current) return;
+      if (loadError instanceof TaskApiError && loadError.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (loadError instanceof TaskApiError && loadError.code === "WEDDING_NOT_FOUND") {
+        window.location.href = "/onboarding";
+        return;
+      }
+      setLoadError(loadError instanceof Error ? loadError.message : "Unable to load your tasks.");
     } finally {
-      setIsLoading(false);
+      if (requestId === loadRequestId.current) setIsLoading(false);
     }
   }, [assigneeFilter, eventFilter, page, priorityFilter, statusFilter, tab]);
 
-  useEffect(() => { void loadData(); }, [loadData]);
+  useEffect(() => {
+    void loadData();
+    return () => { loadRequestId.current += 1; };
+  }, [loadData]);
 
   const visibleTasks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -214,6 +220,7 @@ export default function TasksPage() {
     setEditingTask(null);
     setForm(defaultForm);
     setError(null);
+    setNeedsSignIn(false);
     setNotice(null);
     setIsDrawerOpen(true);
   }
@@ -230,6 +237,7 @@ export default function TasksPage() {
       status: task.status,
     });
     setError(null);
+    setNeedsSignIn(false);
     setNotice(null);
     setIsDrawerOpen(true);
   }
@@ -243,6 +251,7 @@ export default function TasksPage() {
   async function submitTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setNeedsSignIn(false);
     setNotice(null);
     setIsSubmitting(true);
     try {
@@ -255,19 +264,19 @@ export default function TasksPage() {
         priority: form.priority,
         status: form.status,
       };
-      const response = await fetch(editingTask ? `/api/tasks/${editingTask.id}` : "/api/tasks", {
+      const payload = await requestTaskApi<{ data: Task }>(editingTask ? `/api/tasks/${editingTask.id}` : "/api/tasks", {
         method: editingTask ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const payload = (await response.json()) as { data?: Task; error?: ApiError };
-      if (!response.ok || !payload.data) throw new Error(payload.error?.message ?? "Unable to save this task.");
+      if (!payload.data) throw new Error("Unable to save this task.");
       setNotice(editingTask ? "Task details updated." : "Task added to your checklist.");
       setIsDrawerOpen(false);
       setEditingTask(null);
       await loadData();
     } catch (saveError: unknown) {
       setError(saveError instanceof Error ? saveError.message : "Unable to save this task.");
+      setNeedsSignIn(saveError instanceof TaskApiError && saveError.status === 401);
     } finally {
       setIsSubmitting(false);
     }
@@ -276,18 +285,20 @@ export default function TasksPage() {
   async function toggleTask(task: Task) {
     setActingId(task.id);
     setError(null);
+    setNeedsSignIn(false);
+    setNotice(null);
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
+      const payload = await requestTaskApi<{ data: Task }>(`/api/tasks/${task.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: task.status === "COMPLETED" ? "TODO" : "COMPLETED" }),
       });
-      const payload = (await response.json()) as { error?: ApiError };
-      if (!response.ok) throw new Error(payload.error?.message ?? "Unable to update this task.");
+      if (!payload.data) throw new Error("Unable to update this task.");
       setNotice(task.status === "COMPLETED" ? "Task reopened." : "Task marked complete.");
       await loadData();
     } catch (toggleError: unknown) {
       setError(toggleError instanceof Error ? toggleError.message : "Unable to update this task.");
+      setNeedsSignIn(toggleError instanceof TaskApiError && toggleError.status === 401);
     } finally {
       setActingId(null);
     }
@@ -297,14 +308,15 @@ export default function TasksPage() {
     if (!window.confirm(`Delete “${task.title}”? This cannot be undone.`)) return;
     setActingId(task.id);
     setError(null);
+    setNeedsSignIn(false);
+    setNotice(null);
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
-      const payload = (await response.json()) as { error?: ApiError };
-      if (!response.ok) throw new Error(payload.error?.message ?? "Unable to delete this task.");
+      await requestTaskApi<{ success: true }>(`/api/tasks/${task.id}`, { method: "DELETE" });
       setNotice("Task deleted.");
       await loadData();
     } catch (deleteError: unknown) {
       setError(deleteError instanceof Error ? deleteError.message : "Unable to delete this task.");
+      setNeedsSignIn(deleteError instanceof TaskApiError && deleteError.status === 401);
     } finally {
       setActingId(null);
     }
@@ -321,7 +333,7 @@ export default function TasksPage() {
   }
 
   if (isLoading) return <TasksLoadingState />;
-  if (error && tasks.length === 0 && !isDrawerOpen) return <TasksLoadError message={error} onRetry={() => void loadData()} />;
+  if (loadError && !hasLoaded) return <TasksLoadError message={loadError} onRetry={() => void loadData()} />;
 
   const openTasks = Math.max(0, dashboardSummary.total - dashboardSummary.completed);
   const completionRate = dashboardSummary.total > 0 ? Math.round((dashboardSummary.completed / dashboardSummary.total) * 100) : 0;
@@ -335,7 +347,8 @@ export default function TasksPage() {
           <nav className="tasks-breadcrumb" aria-label="Breadcrumb"><Link href="/dashboard">Workspace</Link><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>{weddingName}</span><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span><strong>Tasks &amp; checklist</strong></nav>
           <header className="tasks-hero"><div className="tasks-hero__copy"><span className="section-eyebrow">The shared ceremony ledger</span><h1>Tasks &amp; checklist</h1><p>Organize responsibilities, deadlines, and ceremonial work in one calm, shared place across your wedding circle.</p></div><div className="tasks-hero__actions"><button className="button button--quiet tasks-secondary-action" onClick={() => window.print()} type="button"><span className="material-symbols-outlined" aria-hidden="true">print</span>Print view</button><button className="button tasks-primary-action" onClick={openCreate} type="button"><span className="material-symbols-outlined" aria-hidden="true">add</span>Add task</button></div></header>
 
-          {error ? <div className="members-alert form-error" role="alert">{error}</div> : null}
+          {loadError ? <div className="members-alert form-error" role="alert"><p>{loadError}</p><button className="button button--quiet" onClick={() => void loadData()} type="button">Try again</button></div> : null}
+          {error && !isDrawerOpen ? <div className="members-alert form-error" role="alert">{error}{needsSignIn ? <p><Link href="/login" target="_blank" rel="noopener noreferrer">Sign in again</Link>, then return here to retry.</p> : null}</div> : null}
           {notice ? <div className="members-alert form-success" role="status">{notice}</div> : null}
 
           <section className="tasks-metrics" aria-label="Task summary">
@@ -367,7 +380,7 @@ export default function TasksPage() {
         </div>
       </section>
 
-      {isDrawerOpen ? <div className="tasks-drawer-layer"><button className="tasks-drawer-backdrop" aria-label="Close task form" onClick={closeDrawer} type="button" /><aside className="tasks-drawer" aria-labelledby="task-form-title"><header className="tasks-drawer__header"><div><span className="section-eyebrow">{editingTask ? "Edit checklist item" : "New responsibility"}</span><h2 id="task-form-title">{editingTask ? "Refine task details" : "Add a new task"}</h2><p>Assign the next thoughtful action to someone in your wedding circle.</p></div><button className="icon-button" aria-label="Close task form" onClick={closeDrawer} type="button"><span className="material-symbols-outlined" aria-hidden="true">close</span></button></header><form className="tasks-form" onSubmit={submitTask}><label className="field">Task title <strong aria-hidden="true">*</strong><input autoFocus maxLength={200} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Enter a descriptive ceremony title…" required value={form.title} /></label><label className="field">Scope &amp; instructions <em>optional</em><textarea maxLength={2000} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Add vendor notes, contact details, or checklist nuances…" rows={4} value={form.description} /></label><div className="form-grid"><label className="field">Assignee <em>optional</em><select onChange={(event) => setForm((current) => ({ ...current, assignedMembershipId: event.target.value }))} value={form.assignedMembershipId}><option value="">Unassigned</option>{members.map((member) => <option key={member.membershipId} value={member.membershipId}>{member.user.name} · {member.role === "ADMIN" ? "Admin" : "Manager"}</option>)}</select></label><label className="field">Related ceremony <em>optional</em><select onChange={(event) => setForm((current) => ({ ...current, eventId: event.target.value }))} value={form.eventId}><option value="">General wedding</option>{events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}</select></label></div><label className="field">Target deadline <em>optional</em><input onChange={(event) => setForm((current) => ({ ...current, dueDate: event.target.value }))} type="date" value={form.dueDate} /><span className="field-help">Use the wedding timezone: {timeZone}.</span></label><fieldset className="tasks-form__fieldset"><legend>Priority level</legend><div className="tasks-priority-options">{Object.entries(PRIORITY_LABELS).map(([value, label]) => <button className={form.priority === value ? `is-selected tasks-priority-option tasks-priority-option--${value.toLowerCase()}` : "tasks-priority-option"} key={value} onClick={() => setForm((current) => ({ ...current, priority: value as TaskPriority }))} type="button">{label}</button>)}</div></fieldset><fieldset className="tasks-form__fieldset"><legend>Status</legend><div className="tasks-status-options">{Object.entries(STATUS_LABELS).map(([value, label]) => <label key={value}><input checked={form.status === value} name="task-status" onChange={() => setForm((current) => ({ ...current, status: value as TaskStatus }))} type="radio" value={value} /><span>{label}</span></label>)}</div></fieldset>{error ? <p className="form-error" role="alert">{error}</p> : null}<footer className="tasks-drawer__footer"><button className="button button--quiet" disabled={isSubmitting} onClick={closeDrawer} type="button">Cancel</button><button className="button" disabled={isSubmitting} type="submit"><span className="material-symbols-outlined" aria-hidden="true">add_task</span>{isSubmitting ? "Saving…" : editingTask ? "Save changes" : "Create task"}</button></footer></form></aside></div> : null}
+      {isDrawerOpen ? <div className="tasks-drawer-layer"><button className="tasks-drawer-backdrop" aria-label="Close task form" onClick={closeDrawer} type="button" /><aside className="tasks-drawer" aria-labelledby="task-form-title"><header className="tasks-drawer__header"><div><span className="section-eyebrow">{editingTask ? "Edit checklist item" : "New responsibility"}</span><h2 id="task-form-title">{editingTask ? "Refine task details" : "Add a new task"}</h2><p>Assign the next thoughtful action to someone in your wedding circle.</p></div><button className="icon-button" aria-label="Close task form" onClick={closeDrawer} type="button"><span className="material-symbols-outlined" aria-hidden="true">close</span></button></header><form className="tasks-form" onSubmit={submitTask}><label className="field">Task title <strong aria-hidden="true">*</strong><input autoFocus maxLength={200} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Enter a descriptive ceremony title…" required value={form.title} /></label><label className="field">Scope &amp; instructions <em>optional</em><textarea maxLength={2000} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Add vendor notes, contact details, or checklist nuances…" rows={4} value={form.description} /></label><div className="form-grid"><label className="field">Assignee <em>optional</em><select onChange={(event) => setForm((current) => ({ ...current, assignedMembershipId: event.target.value }))} value={form.assignedMembershipId}><option value="">Unassigned</option>{members.map((member) => <option key={member.membershipId} value={member.membershipId}>{member.user.name} · {member.role === "ADMIN" ? "Admin" : "Manager"}</option>)}</select></label><label className="field">Related ceremony <em>optional</em><select onChange={(event) => setForm((current) => ({ ...current, eventId: event.target.value }))} value={form.eventId}><option value="">General wedding</option>{events.map((event) => <option key={event.id} value={event.id}>{event.name}</option>)}</select></label></div><label className="field">Target deadline <em>optional</em><input onChange={(event) => setForm((current) => ({ ...current, dueDate: event.target.value }))} type="date" value={form.dueDate} /><span className="field-help">Use the wedding timezone: {timeZone}.</span></label><fieldset className="tasks-form__fieldset"><legend>Priority level</legend><div className="tasks-priority-options">{Object.entries(PRIORITY_LABELS).map(([value, label]) => <button className={form.priority === value ? `is-selected tasks-priority-option tasks-priority-option--${value.toLowerCase()}` : "tasks-priority-option"} key={value} onClick={() => setForm((current) => ({ ...current, priority: value as TaskPriority }))} type="button">{label}</button>)}</div></fieldset><fieldset className="tasks-form__fieldset"><legend>Status</legend><div className="tasks-status-options">{Object.entries(STATUS_LABELS).map(([value, label]) => <label key={value}><input checked={form.status === value} name="task-status" onChange={() => setForm((current) => ({ ...current, status: value as TaskStatus }))} type="radio" value={value} /><span>{label}</span></label>)}</div></fieldset>{error ? <div className="form-error" role="alert"><p>{error}</p>{needsSignIn ? <p><Link href="/login" target="_blank" rel="noopener noreferrer">Sign in again</Link>, then return here to retry. Your task details will stay in this form.</p> : null}</div> : null}<footer className="tasks-drawer__footer"><button className="button button--quiet" disabled={isSubmitting} onClick={closeDrawer} type="button">Cancel</button><button className="button" disabled={isSubmitting} type="submit"><span className="material-symbols-outlined" aria-hidden="true">add_task</span>{isSubmitting ? "Saving…" : editingTask ? "Save changes" : "Create task"}</button></footer></form></aside></div> : null}
     </main>
   );
 }

@@ -32,6 +32,9 @@ Generic serif fonts and dashboard serif typography are banned. Inter is reserved
 - Contain content at `min(1440px, calc(100% - 2 * gutter))` with generous whitespace.
 - Collapse every multi-column composition below `768px`.
 - Full-height surfaces use `min-height: 100dvh`, never `100vh` or `h-screen`.
+- Top navigation headers use a consistent `56px` height and `12px 16px` padding
+  across public, authentication, and workspace screens; fixed headers reserve
+  the same height in the content below. Section eyebrow labels have no bottom margin.
 - Standard text/action buttons use a compact `32px` height including padding;
   icon-only controls may remain larger when needed for comfortable interaction.
 - Cards use quiet borders and warm, diffused shadows only when elevation communicates hierarchy.

@@ -3,30 +3,19 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
-type DemoState = "default" | "error" | "loading";
-
 export function LoginPanel({ inviteToken }: { inviteToken?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberDevice, setRememberDevice] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [demoState, setDemoState] = useState<DemoState>("default");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isPreviewLoading = demoState === "loading" && !isSubmitting;
-  const isLoading = isSubmitting || isPreviewLoading;
-  const visibleError = error ?? (demoState === "error" ? "Invalid email or password." : null);
-
-  function selectDemoState(nextState: DemoState) {
-    setDemoState(nextState);
-    setError(null);
-  }
+  const isLoading = isSubmitting;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setDemoState("default");
     setIsSubmitting(true);
 
     try {
@@ -51,26 +40,12 @@ export function LoginPanel({ inviteToken }: { inviteToken?: string }) {
           : "/onboarding";
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Something went wrong. Please try again.");
-      setDemoState("error");
       setIsSubmitting(false);
     }
   }
 
   return (
     <div className="login-stage">
-      <div className="auth-state-switcher" role="group" aria-label="Sign in preview states">
-        <span>Simulate:</span>
-        <button className={demoState === "default" ? "is-active" : ""} onClick={() => selectDemoState("default")} type="button" aria-pressed={demoState === "default"}>
-          Default
-        </button>
-        <button className={demoState === "error" ? "is-active" : ""} onClick={() => selectDemoState("error")} type="button" aria-pressed={demoState === "error"}>
-          Error Alert
-        </button>
-        <button className={demoState === "loading" ? "is-active" : ""} onClick={() => selectDemoState("loading")} type="button" aria-pressed={demoState === "loading"}>
-          Loading
-        </button>
-      </div>
-
       <section className="login-card" aria-labelledby="login-heading">
         <header className="login-card__header">
           <div className="login-card__eyebrow"><span aria-hidden="true" />Welcome back</div>
@@ -78,11 +53,11 @@ export function LoginPanel({ inviteToken }: { inviteToken?: string }) {
           <p>Pick up where your wedding plans left off.</p>
         </header>
 
-        {visibleError ? (
+        {error ? (
           <div className="login-error" role="alert">
             <span className="material-symbols-outlined" aria-hidden="true">error</span>
             <div>
-              <p>{visibleError}</p>
+              <p>{error}</p>
               <small>Please check your details and try again, or reset your password.</small>
             </div>
           </div>

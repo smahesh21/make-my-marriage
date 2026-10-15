@@ -8,7 +8,7 @@ The status log is not a replacement for the PRD, system design, database design,
 
 **Overall status:** Active development
 
-**Last updated:** 2026-10-14
+**Last updated:** 2026-10-15
 
 ## Completed milestones
 
@@ -320,6 +320,10 @@ print-friendly checklist view.
 - `src/modules/tasks/use-cases.ts`
 - `src/server/models/wedding-task.ts`
 - `src/shared/tasks/schemas.ts`
+- `src/app/tasks/api.ts`
+- `tests/tasks-isolation.test.ts`
+- `tests/tasks-ui.test.tsx`
+- `tests/tasks-api-client.test.ts`
 - `src/app/api/dashboard/route.ts`
 - `src/app/dashboard/page.tsx`
 - `src/app/workspace/WorkspaceSidebar.tsx`
@@ -327,12 +331,34 @@ print-friendly checklist view.
 **Current boundary:** Comments, attachments, subtasks, dependencies, and CSV
 export remain outside the documented V1 scope. Existing archived-event and
 removed-member associations remain visible for safe editing, while new task
-associations require active wedding resources. MongoDB-backed task persistence,
-authorization, conflict handling, and tenant-isolation behavior require the
-configured integration database for full end-to-end verification.
+associations require active wedding resources. Deployment/browser-level
+multi-account testing remains separate from the isolated integration suite.
 
-**Verification:** Focused task schema tests, route smoke tests, typecheck, lint,
-production build, and `git diff --check` passed.
+**Critical/High QA follow-up (2026-10-15):** Cross-wedding access is now covered
+against a disposable MongoDB instance using real session creation, authentication,
+membership resolution, route handlers, and task queries. Admins and Managers are
+tested in both wedding contexts for listing, reading, editing, completion,
+deletion, forged ownership, and foreign member/event references. Only Next's
+incoming cookie store is simulated; no configured application database is used.
+
+Task request failures now have status-aware handling, bounded request timeouts,
+safe handling of non-JSON responses, explicit read retries, preserved form drafts,
+and a sign-in recovery link for expired-session writes. Failed account or
+dashboard requests no longer silently produce fallback workspace state/counters.
+A successful write followed by a failed refresh is reported separately and its
+retry only reloads data. Writes are not automatically replayed. Malformed JSON
+on task create/update returns `400 VALIDATION_ERROR`.
+The My tasks + Unassigned filter combination now returns an empty list instead
+of an ObjectId cast error and 500 response.
+
+Detailed coverage, reproducible commands, and remaining manual QA boundaries are recorded in
+`docs/QA_TASKS_CRITICAL_HIGH_RETEST.md`.
+
+**Verification (2026-10-15):** The full suite passed with 75 tests, including
+48 targeted follow-up tests. The 20 optional HTTP smoke tests were skipped
+without `SMOKE_BASE_URL`. Typecheck, lint, production build, and `git diff --check`
+passed. A read-only browser check confirmed Admin Tasks loading and the corrected
+My tasks + Unassigned filter without modifying existing task data.
 
 ### 14. Refined Stitch design system pass
 
@@ -340,7 +366,7 @@ production build, and `git diff --check` passed.
 
 The implemented product screens now share the latest Stitch visual treatment:
 warm ivory surfaces, muted sage action states, quiet card borders, consistent
-44px controls and focus rings, editorial heading rhythm, sans-serif metric
+44px form controls and focus rings, editorial heading rhythm, sans-serif metric
 numerals, persistent workspace navigation, and one-column compositions below
 the mobile breakpoint. The Tasks page also now correctly unwraps its paginated
 API response instead of attempting to render the response envelope as an array.
@@ -361,15 +387,22 @@ landing, sign-in, sign-up, dashboard, Events, Tasks, Wedding Members, Wedding
 details, and invitation states, focused tests (27 passed), typecheck, lint,
 production build, and clean generated Next.js output regeneration passed.
 
-### 15. Compact authenticated workspace chrome
+### 15. Compact shared navigation and workspace chrome
 
 **Status:** Complete for the current implementation baseline
 
-Authenticated workspace screens now use a consistent 56px topbar with 12px by
-16px padding, an 8px navigation rhythm, and compact 32px text/action buttons.
+Public, authentication, and workspace navigation now share a consistent 56px
+header with 12px by 16px padding and compact 32px text/action buttons. Content
+offsets match the fixed header height, and section eyebrow labels have no bottom
+margin. Workspace navigation retains its 8px rhythm.
 The redundant Current Workspace sidebar card and its loading placeholders were
 removed so the primary navigation has more room for the wedding workflow.
 Icon-only controls retain their larger interaction area where needed.
+
+**UI follow-up (2026-10-15):** Removed the login simulation controls and preview
+state logic. The sidebar logo uses 12px top padding, and the sidebar remains
+sticky through the bottom of the page by keeping outer spacing inside the main
+content. These changes apply to the shared layouts across the implemented screens.
 
 **Key areas:**
 
@@ -381,10 +414,12 @@ Icon-only controls retain their larger interaction area where needed.
 - `src/app/settings/members/page.tsx`
 - `src/app/settings/wedding/page.tsx`
 
-**Verification:** Browser measurements confirmed the 56px topbar, 12px by 16px
-topbar padding, 32px action buttons, 8px sidebar spacing, and removed workspace
-card. Typecheck, lint, focused tests (27 passed), production build, and
-`git diff --check` passed.
+**Verification (2026-10-15):** Browser measurements confirmed 56px headers,
+12px by 16px header padding, 32px action buttons, zero label bottom margin,
+and correct content offsets on public/authentication and workspace screens.
+Scrolling checks covered Dashboard, Events, Tasks, Wedding Members, and Wedding
+details. Typecheck, lint, the full automated suite (75 passed; 20 optional HTTP
+smoke tests skipped), production build, and `git diff --check` passed.
 
 ## Status vocabulary
 

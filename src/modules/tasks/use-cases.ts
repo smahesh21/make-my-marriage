@@ -143,7 +143,7 @@ function buildTaskFilter(weddingId: string, query: TaskListQuery, currentMembers
 
   if (query.mine) {
     if (query.assignedMembershipId && query.assignedMembershipId !== currentMembershipId) {
-      filter.$and = [{ assignedMembershipId: currentMembershipId }, { assignedMembershipId: query.assignedMembershipId }];
+      filter.$and = [{ assignedMembershipId: currentMembershipId }, { assignedMembershipId: filter.assignedMembershipId }];
     } else {
       filter.assignedMembershipId = currentMembershipId;
     }

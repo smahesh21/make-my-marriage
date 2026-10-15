@@ -27,7 +27,10 @@ export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
     const context = await requireWeddingContext();
-    const input = createTaskSchema.parse(await request.json());
+    const body = await request.json().catch(() => {
+      throw new AppError("VALIDATION_ERROR", "Send a valid JSON request body.", 400);
+    });
+    const input = createTaskSchema.parse(body);
     return successResponse(await createWeddingTask(context.membership!.weddingId, input), 201);
   } catch (error) {
     return errorResponse(error);

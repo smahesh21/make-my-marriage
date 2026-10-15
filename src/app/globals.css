@@ -25,6 +25,8 @@
   --card-border: #e8e4db;
   --card-shadow: 0 0.25rem 1.25rem -0.125rem rgba(41, 44, 41, 0.04);
   --workspace-width: 90rem;
+  --app-header-height: 3.5rem;
+  --action-height: 2rem;
   --error-container: #ffdad6;
   --error-ink: #93000a;
   --content-width: 1440px;
@@ -88,6 +90,7 @@ ul { margin: 0; padding: 0; }
 .desktop-nav a, .sign-in-link { color: var(--muted); font-size: 0.875rem; transition: color 180ms ease; }
 .desktop-nav a:hover, .sign-in-link:hover, .site-footer a:hover { color: var(--ink); }
 .header-actions { display: flex; align-items: center; gap: 1rem; }
+.sign-in-link { display: inline-flex; align-items: center; justify-content: center; }
 .button {
   display: inline-flex;
   min-height: 2.75rem;
@@ -195,7 +198,7 @@ ul { margin: 0; padding: 0; }
 .challenge-section, .plan-section, .faq-section { padding: 5rem 0; }
 .section-intro { max-width: 42rem; margin-bottom: 4rem; }
 .section-intro--centered { margin-inline: auto; text-align: center; }
-.section-eyebrow { display: block; margin-bottom: 0.75rem; color: var(--primary); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; line-height: 0.875rem; text-transform: uppercase; }
+.section-eyebrow { display: block; margin-bottom: 0; color: var(--primary); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; line-height: 0.875rem; text-transform: uppercase; }
 .section-intro h2 { margin-bottom: 1rem; font-size: 2.25rem; line-height: 2.75rem; }
 .section-intro p { color: var(--muted); font-size: 1rem; line-height: 1.625rem; }
 .challenge-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
@@ -599,10 +602,6 @@ ul { margin: 0; padding: 0; }
 .auth-design-ambient--top { top: -6rem; left: -5rem; width: 32.5rem; height: 32.5rem; background: rgba(216, 231, 205, 0.25); }
 .auth-design-ambient--bottom { right: -4rem; bottom: -4rem; width: 27.5rem; height: 27.5rem; background: rgba(225, 227, 222, 0.3); }
 .login-stage { position: relative; z-index: 1; display: flex; width: 100%; flex-direction: column; align-items: center; }
-.auth-state-switcher { display: flex; min-height: 1.75rem; align-items: center; gap: 0.25rem; margin-bottom: 1.5rem; border-radius: 999px; padding: 0.25rem; background: rgba(234, 232, 227, 0.8); box-shadow: 0 1px 3px rgba(41, 44, 41, 0.05); }
-.auth-state-switcher span { padding-inline: 0.5rem; color: var(--muted); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; }
-.auth-state-switcher button { min-height: 1.5rem; border: 0; border-radius: 999px; padding: 0.25rem 0.5rem; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.6875rem; line-height: 1rem; transition: background 180ms ease, color 180ms ease; }
-.auth-state-switcher button:hover, .auth-state-switcher button.is-active { background: var(--surface-lowest); color: var(--ink); box-shadow: 0 1px 2px rgba(41, 44, 41, 0.06); }
 .login-card { width: min(100%, 28.75rem); border-radius: 0.75rem; padding: 2rem 2.5rem; background: var(--surface-lowest); box-shadow: 0 0.25rem 1.5rem -0.25rem rgba(41, 44, 41, 0.06); }
 .login-card__header { display: flex; flex-direction: column; margin-bottom: 1.5rem; text-align: left; }
 .login-card__eyebrow { display: inline-flex; align-items: center; gap: 0.375rem; margin-bottom: 0.25rem; color: var(--muted); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.14em; line-height: 1rem; text-transform: uppercase; }
@@ -717,8 +716,6 @@ ul { margin: 0; padding: 0; }
   .auth-design-content { min-height: calc(100dvh - 9.5rem); align-items: flex-start; padding: 2.5rem 1rem 3rem; }
   .auth-design-ambient--top { left: -12rem; }
   .auth-design-ambient--bottom { right: -12rem; }
-  .auth-state-switcher { max-width: 100%; overflow-x: auto; }
-  .auth-state-switcher span, .auth-state-switcher button { flex: 0 0 auto; }
   .login-card { padding: 2rem 1.25rem; }
   .login-card h1 { font-size: 2rem; line-height: 2.5rem; }
   .auth-design-footer { min-height: 6rem; align-items: flex-start; flex-direction: column; gap: 0.75rem; padding: 1rem; font-size: 0.75rem; }
@@ -742,7 +739,7 @@ ul { margin: 0; padding: 0; }
 /* Wedding Members follows the Stitch Warm Editorial SaaS system: quiet structure,
    warm surfaces, and a focused invite drawer that keeps the workspace in context. */
 .members-page { display: grid; min-height: 100dvh; grid-template-columns: 17rem minmax(0, 1fr); background: var(--background); color: var(--ink); }
-.members-sidebar { display: flex; min-height: 100dvh; flex-direction: column; border-right: 1px solid var(--line); padding: 1.75rem 1.25rem 1.25rem; background: var(--surface-low); }
+.members-sidebar { display: flex; min-height: 100dvh; flex-direction: column; border-right: 1px solid var(--line); padding: 0.75rem 1.25rem 1.25rem; background: var(--surface-low); }
 .members-sidebar .auth-logo__mark { width: 10.5rem; height: 2.4rem; }
 .members-nav__section { color: var(--muted); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.09em; line-height: 0.875rem; text-transform: uppercase; }
 .members-nav { display: grid; gap: 0.25rem; }
@@ -1564,6 +1561,8 @@ body { overflow-x: hidden; }
 .members-page {
   min-width: 0;
   overflow-x: clip;
+  /* Keep page spacing inside the content so the sidebar stays pinned at the end. */
+  padding-bottom: 0;
 }
 
 .workspace-main,
@@ -1591,6 +1590,7 @@ body { overflow-x: hidden; }
 .members-sidebar {
   position: sticky;
   top: 0;
+  align-self: start;
   height: 100dvh;
   overflow-y: auto;
   scrollbar-width: none;
@@ -1629,20 +1629,68 @@ body { overflow-x: hidden; }
   }
 }
 
-/* Compact workspace chrome shared by every authenticated screen. */
+/* Compact navigation shared by public, authentication, and workspace screens. */
+.header-inner,
+.auth-design-header__inner,
+.member-invite-header,
 .workspace-topbar {
-  height: 3.5rem;
-  min-height: 3.5rem;
+  height: var(--app-header-height);
+  min-height: var(--app-header-height);
   gap: 0.5rem;
   padding: 0.75rem 1rem;
 }
 
+html {
+  scroll-padding-top: calc(var(--app-header-height) + 0.5rem);
+}
+
+.site-main,
+.auth-design-main {
+  padding-top: var(--app-header-height);
+}
+
+.site-header .brand {
+  min-height: var(--action-height);
+}
+
+.site-header .brand-mark {
+  width: 8.75rem;
+  height: var(--action-height);
+}
+
+.auth-design-back,
+.auth-design-nav a,
+.auth-design-nav a.is-active,
+.events-filter button,
+.tasks-tabs button {
+  height: var(--action-height);
+  min-height: var(--action-height);
+  padding-block: 0;
+}
+
+.sign-in-link,
+.text-button {
+  height: var(--action-height);
+  min-height: var(--action-height);
+  align-items: center;
+  justify-content: center;
+  padding-block: 0;
+}
+
+.text-button {
+  display: inline-flex;
+}
+
 .workspace-topbar > div {
+  display: grid;
   min-width: 0;
+  gap: 0;
 }
 
 .workspace-topbar p {
   overflow: hidden;
+  margin: 0;
+  line-height: 1.125rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1671,12 +1719,14 @@ body { overflow-x: hidden; }
 .button--quiet,
 .login-submit,
 .hero-actions .button,
+.tasks-pagination .button,
+.member-invite-authenticated .member-invite-accept,
 .events-primary-action,
 .members-primary-action,
 .tasks-primary-action,
 .tasks-secondary-action {
-  height: 2rem;
-  min-height: 2rem;
+  height: var(--action-height);
+  min-height: var(--action-height);
   border-radius: 0.375rem;
   padding-block: 0;
 }
