@@ -1747,3 +1747,225 @@ html {
 .members-sidebar__signout {
   min-height: 2rem;
 }
+
+/* Guests: revised Stitch registry and single-scroll drawers. */
+.guests-shell { display: grid; gap: 1rem; width: min(96rem, 100%); padding: 1.5rem; }
+.guests-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.guests-heading h1 { margin: 0 0 0.5rem; font: 400 clamp(1.75rem, 3vw, 2.25rem)/1.15 var(--serif); letter-spacing: -0.035em; }
+.guests-heading p { max-width: 44rem; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
+.guests-heading .button { flex-shrink: 0; }
+.guests-page .button, .guest-dialog .button { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; width: auto; cursor: pointer; font-size: 0.75rem; white-space: nowrap; }
+.guests-page button:disabled, .guest-dialog button:disabled { cursor: not-allowed; opacity: 0.6; }
+.guests-page .button .material-symbols-outlined { font-size: 1.125rem; }
+.guests-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
+.guests-metrics article { display: flex; min-width: 0; flex-direction: column; gap: 1rem; padding: 1rem; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-lowest); }
+.guests-metrics article > span { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; color: var(--muted); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.guests-metrics .material-symbols-outlined { font-size: 1.125rem; color: var(--primary); }
+.guests-metrics strong { font-size: 1.75rem; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; }
+.guests-metrics small { color: var(--muted); font-size: 0.6875rem; line-height: 1.4; }
+.guests-filters { display: grid; grid-template-columns: minmax(10rem, 1.6fr) repeat(3, minmax(7rem, 1fr)) auto; gap: 0.5rem; padding: 1rem; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-lowest); align-items: center; }
+.guests-filters label { min-width: 0; }
+.guests-filters input, .guests-filters select { height: 44px; width: 100%; min-width: 0; padding: 0 0.625rem; border: 1px solid var(--card-border); border-radius: 0.375rem; background: var(--surface-low); color: var(--ink); font: 0.75rem var(--sans); }
+.guest-search { display: flex; align-items: center; position: relative; }
+.guest-search > .material-symbols-outlined { position: absolute; left: 0.625rem; color: var(--muted); font-size: 1.125rem; pointer-events: none; }
+.guest-search input { padding-left: 2rem; }
+.guests-panel { min-width: 0; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--surface-lowest); }
+.guests-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.75rem; }
+.guests-table th { padding: 0.75rem 0.5rem; text-align: left; color: var(--muted); background: var(--surface-low); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.guests-table th:first-child { width: 30%; padding-left: 1rem; }
+.guests-table th:nth-child(2) { width: 8%; }
+.guests-table th:nth-child(3) { width: 21%; }
+.guests-table th:nth-child(4) { width: 19%; }
+.guests-table th:nth-child(5) { width: 16%; }
+.guests-table th:last-child { width: 6%; }
+.guests-table td { padding: 1rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: middle; overflow-wrap: anywhere; }
+.guests-table td:first-child { padding-left: 1rem; }
+.guests-table tr:last-child td { border-bottom: 0; }
+.guest-person { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.guest-person > div { min-width: 0; }
+.guest-avatar { display: grid; width: 2rem; height: 2rem; flex-shrink: 0; place-items: center; background: var(--primary-fixed); color: var(--primary); border-radius: 50%; font-size: 0.6875rem; }
+.guest-name { padding: 0; border: 0; background: none; color: var(--ink); text-align: left; font: 600 0.8125rem/1.4 var(--sans); cursor: pointer; overflow-wrap: anywhere; }
+.guest-name:hover { text-decoration: underline; }
+.guest-person small { display: block; margin-top: 0.25rem; color: var(--muted); font-size: 0.6875rem; line-height: 1.4; overflow-wrap: anywhere; }
+.guest-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; }
+.guest-tags > span, .guest-tags > button { padding: 0.1875rem 0.375rem; border: 0; border-radius: 0.25rem; background: var(--surface-low); color: var(--primary); font-size: 0.625rem; line-height: 1.4; }
+.guest-tags > button { cursor: pointer; }
+.guest-tags small { color: var(--muted); }
+.guest-status { display: inline-block; color: var(--muted); font-size: 0.6875rem; line-height: 1.5; }
+.guest-status::before { content: ''; display: inline-block; width: 0.375rem; height: 0.375rem; margin-right: 0.35rem; border-radius: 50%; background: currentColor; }
+.guest-status--attending { color: var(--primary); }
+.guest-status small { white-space: normal; }
+.guest-email-status { font-size: 0.6875rem; line-height: 1.4; color: var(--muted); }
+.guest-actions-cell { position: relative; }
+.guest-actions > summary { display: grid; width: 2rem; height: 2rem; list-style: none; place-items: center; border-radius: 0.375rem; color: var(--muted); cursor: pointer; }
+.guest-actions > summary::-webkit-details-marker { display: none; }
+.guest-actions[open] > summary, .guest-actions > summary:hover { background: var(--surface-low); }
+.guest-actions > div { position: absolute; z-index: 10; top: calc(100% - 0.75rem); right: 0.5rem; display: grid; gap: 0.25rem; width: 11rem; padding: 0.5rem; border: 1px solid var(--line); border-radius: 0.5rem; background: white; box-shadow: 0 0.5rem 1.5rem rgba(41, 44, 41, 0.12); }
+.guest-actions button { display: flex; align-items: center; gap: 0.5rem; min-height: 32px; border: 0; padding: 0.375rem; background: transparent; color: var(--ink); text-align: left; font: 0.75rem var(--sans); cursor: pointer; }
+.guest-actions button:hover { background: var(--surface-low); }
+.guest-actions button .material-symbols-outlined { font-size: 1rem; }
+.guest-delete-text, .guest-actions .guest-delete-text { color: var(--error); }
+.guests-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.6875rem; }
+.guests-pagination > div { display: flex; align-items: center; gap: 0.5rem; }
+.guests-boundary { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+.guests-boundary .material-symbols-outlined { font-size: 1.125rem; }
+.guests-empty { display: grid; justify-items: center; gap: 0.75rem; padding: 3rem 1.5rem; text-align: center; }
+.guests-empty > .material-symbols-outlined { color: var(--primary); font-size: 2.5rem; }
+.guests-empty h2 { font: 400 1.5rem var(--serif); }
+.guests-empty p, .guest-refreshing { color: var(--muted); font-size: 0.8125rem; }
+.guest-alert { display: grid; justify-items: start; gap: 0.5rem; padding: 1rem; border: 1px solid var(--line); border-radius: 0.5rem; background: var(--surface-lowest); font-size: 0.8125rem; }
+.guest-alert h2 { font: 400 1.25rem var(--serif); }
+.guest-alert a, .guest-dialog .form-error a { text-decoration: underline; }
+.guests-skeleton { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+.guests-skeleton > div, .guests-skeleton > section { height: 8rem; border-radius: 0.75rem; background: var(--surface-container); animation: ui-skeleton-shimmer 1.4s ease-in-out infinite; }
+.guests-skeleton > section { grid-column: 1 / -1; height: 24rem; }
+.guest-dialog-layer { position: fixed; z-index: 70; inset: 0; display: flex; justify-content: flex-end; }
+.guest-dialog-backdrop { position: absolute; inset: 0; background: rgba(41, 44, 41, 0.28); backdrop-filter: blur(2px); }
+.guest-dialog { position: relative; display: flex; flex-direction: column; width: min(32rem, 100%); height: 100dvh; min-width: 0; background: var(--surface-lowest); box-shadow: -0.5rem 0 2rem rgba(41, 44, 41, 0.1); animation: member-drawer-in 200ms ease-out; outline: none; }
+.guest-dialog__header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; min-height: 56px; padding: 12px 16px; gap: 0.5rem; border-bottom: 1px solid var(--line); }
+.guest-dialog__header h2 { font: 400 1.375rem var(--serif); }
+.guest-dialog__header .icon-button { min-height: 32px; width: 32px; height: 32px; }
+.guest-dialog__body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1.5rem; scrollbar-width: thin; scrollbar-color: var(--outline) transparent; }
+.guest-dialog__body p { font-size: 0.8125rem; line-height: 1.5; }
+.guest-dialog__body > p + p { margin-top: 0.75rem; }
+.guest-dialog__footer { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-shrink: 0; padding: 1rem; border-top: 1px solid var(--line); background: var(--surface-lowest); }
+.guest-dialog__footer > small { margin-right: auto; color: var(--muted); font-size: 0.6875rem; }
+.guest-form { display: flex; flex-direction: column; gap: 1.25rem; }
+.guest-form-note { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.75rem; border-radius: 0.5rem; background: #f2f5f0; color: var(--primary); font-size: 0.75rem; line-height: 1.5; }
+.guest-form-note .material-symbols-outlined { font-size: 1.125rem; }
+.guest-form .field { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8125rem; }
+.guest-form .field input { width: 100%; height: 44px; min-height: 44px; background: var(--surface-low); }
+.guest-form .field textarea { min-height: 6rem; }
+.guest-form .field em, .guest-event-picker em { font-style: normal; color: var(--muted); font-size: 0.6875rem; }
+.guest-form .field strong { color: var(--error); }
+.guest-form small, .guest-details small { display: block; color: var(--muted); font-size: 0.6875rem; font-weight: 400; line-height: 1.5; }
+.guest-field-error { color: var(--error); font-size: 0.75rem; font-weight: 400; }
+.guest-form [aria-invalid=true] { border-color: var(--error); }
+.guest-event-picker { display: grid; gap: 0.5rem; border: 0; padding: 0; }
+.guest-event-picker legend { margin-bottom: 0.75rem; font-size: 0.8125rem; font-weight: 500; }
+.guest-event-picker > label { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.375rem; font-size: 0.8125rem; }
+.guest-event-picker input { width: 1rem; height: 1rem; flex-shrink: 0; margin-top: 0.125rem; accent-color: var(--primary); }
+.guest-event-picker p { color: var(--muted); }
+.guest-discard { padding: 1rem; background: var(--surface-low); border-top: 1px solid var(--line); }
+.guest-discard p { margin-bottom: 0.75rem; font-size: 0.8125rem; }
+.guest-discard .button + .button { margin-left: 0.5rem; }
+.guest-dialog .guest-danger { background: #a7392d; color: white; }
+.guest-dialog .guest-danger:hover { background: #8e3026; }
+.guest-details { display: flex; flex-direction: column; gap: 1.5rem; }
+.guest-details h3 { display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.5rem; font: 400 1.125rem var(--serif); overflow-wrap: anywhere; }
+.guest-details dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.guest-details dl > div { padding: 0.75rem; border: 1px solid var(--line); border-radius: 0.375rem; background: var(--surface-low); }
+.guest-details dt { margin-bottom: 0.5rem; color: var(--muted); font-size: 0.625rem; text-transform: uppercase; }
+.guest-details dd { font-size: 0.8125rem; overflow-wrap: anywhere; }
+.guest-details li { margin: 0 0 0.75rem 1rem; font-size: 0.8125rem; }
+.guest-details .guest-notes { white-space: pre-wrap; overflow-wrap: anywhere; }
+.guest-details .material-symbols-outlined { font-size: 1rem; }
+.guest-dialog-layer--confirmation { align-items: center; justify-content: center; padding: 1rem; }
+.guest-dialog--confirmation { height: auto; max-height: calc(100dvh - 2rem); width: min(30rem, 100%); border-radius: 0.75rem; }
+.guest-dialog--confirmation .guest-dialog__body { flex-basis: auto; }
+.guests-page :is(button, summary, input, select):focus-visible, .guest-dialog :is(button, input, textarea):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+@media (max-width: 1200px) {
+  .guests-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .guests-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guests-filters .guest-search { grid-column: 1 / -1; }
+  .guests-table, .guests-table tbody { display: block; }
+  .guests-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .guests-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 1rem; border-bottom: 1px solid var(--line); gap: 0.75rem; }
+  .guests-table td, .guests-table td:first-child { display: block; min-width: 0; border: 0; padding: 0; }
+  .guests-table td:first-child { grid-column: 1 / -1; }
+  .guests-table td[data-label]:not(:first-child)::before { display: block; margin-bottom: 0.25rem; color: var(--muted); font-size: 0.625rem; content: attr(data-label); text-transform: uppercase; }
+  .guest-actions-cell { justify-self: end; align-self: end; }
+}
+@media (max-width: 767px) {
+  .guests-shell { padding: 1rem; }
+  .guests-heading { align-items: flex-start; flex-wrap: wrap; }
+  .guests-metrics, .guests-filters, .guests-skeleton { grid-template-columns: 1fr; }
+  .guests-metrics article { gap: 0.5rem; }
+  .guests-pagination > div { flex-wrap: wrap; }
+  .guest-details dl { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guests-skeleton > div, .guests-skeleton > section, .guest-dialog { animation: none; }
+}
+
+/* Private guest sharing and the standalone Stitch invitation surface. */
+.guest-invitation-actions { display: grid; gap: 0.875rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.guest-invitation-actions h3 { margin: 0; }
+.guest-invitation-actions p { color: var(--muted); }
+.guest-invitation-actions .field { display: grid; min-width: 0; gap: 0.5rem; font-size: 0.75rem; }
+.guest-invitation-actions .guest-private-url { width: 100%; min-width: 0; height: 44px; padding: 0.5rem; border: 1px solid var(--line); border-radius: 0.375rem; background: var(--surface-low); font-size: 0.75rem; }
+.guest-share-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.guest-email-confirmation { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: 0.5rem; background: var(--surface-low); }
+.guest-email-confirmation h4 { font-size: 0.875rem; }
+.public-invitation { min-height: 100dvh; color: var(--ink); background: var(--background); }
+.invitation-topbar { position: sticky; top: 0; z-index: 20; display: flex; height: 56px; align-items: center; justify-content: space-between; gap: 1rem; padding: 12px 16px; border-bottom: 1px solid var(--line); background: rgba(251, 249, 244, 0.96); }
+.invitation-topbar .auth-design-brand { display: flex; align-items: center; }
+.invitation-topbar .auth-design-brand__mark { width: 8.75rem; height: 32px; }
+.invitation-topbar nav { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--muted); }
+.invitation-topbar nav a { display: inline-flex; align-items: center; min-height: 32px; }
+.invitation-topbar nav a:hover { color: var(--primary); }
+.invitation-shell { display: grid; width: min(1120px, 100%); margin: 0 auto; padding: 2.5rem 2rem; gap: 2.5rem; }
+.invitation-hero { display: grid; justify-items: center; gap: 1rem; padding: clamp(1.5rem, 5vw, 4rem); border: 1px solid var(--line); border-radius: 0.75rem; background: linear-gradient(125deg, #fff 65%, #f4f7f0); text-align: center; }
+.invitation-rings { color: var(--primary); font-size: 2rem; line-height: 1; }
+.invitation-hero .section-eyebrow { max-width: 100%; overflow-wrap: anywhere; }
+.invitation-hero h1 { margin: 0; font: 400 clamp(2rem, 4vw, 3.5rem)/1.15 var(--serif); letter-spacing: -0.035em; overflow-wrap: anywhere; }
+.invitation-hero h2 { margin-top: 0.75rem; font: 400 1.125rem/1.5 var(--serif); }
+.invitation-hero > p { max-width: 60ch; color: var(--muted); font-size: 0.875rem; line-height: 1.7; white-space: pre-wrap; }
+.invitation-personal { padding: 0.25rem 0.75rem; border-radius: 99px; background: var(--surface-low); color: var(--muted); font-size: 0.6875rem; }
+.invitation-hero > dl { display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.5rem; padding: 1rem; border-radius: 0.5rem; background: var(--surface-low); text-align: left; }
+.invitation-hero dt { margin-bottom: 0.5rem; color: var(--muted); font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.invitation-hero dd { font-size: 0.8125rem; line-height: 1.6; overflow-wrap: anywhere; }
+.invitation-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; gap: 2rem; }
+.invitation-ceremonies, .invitation-response { scroll-margin-top: 72px; }
+.invitation-ceremonies { display: grid; gap: 1rem; }
+.invitation-ceremonies > header h2, .invitation-response > h2 { margin-bottom: 0.5rem; font: 400 1.5rem/1.3 var(--serif); }
+.invitation-ceremonies > header p { color: var(--muted); font-size: 0.8125rem; line-height: 1.5; }
+.invitation-event { padding: 1.25rem; border: 1px solid var(--line); border-left: 3px solid var(--primary); border-radius: 0.5rem; background: var(--surface-lowest); }
+.invitation-event__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.invitation-event__heading small { color: var(--muted); font-size: 0.625rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.invitation-event h3 { margin-top: 0.375rem; font: 400 1.125rem/1.4 var(--serif); overflow-wrap: anywhere; }
+.invitation-event__heading > span { max-width: 9rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; background: var(--surface-low); color: var(--muted); font-size: 0.6875rem; line-height: 1.5; }
+.invitation-event dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.invitation-event dt { display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.375rem; color: var(--muted); font-size: 0.625rem; text-transform: uppercase; }
+.invitation-event dt .material-symbols-outlined { color: var(--primary); font-size: 1rem; }
+.invitation-event dd { padding-left: 1.375rem; font-size: 0.8125rem; line-height: 1.5; overflow-wrap: anywhere; }
+.invitation-event dd small { display: block; margin-top: 0.25rem; color: var(--muted); font-size: 0.75rem; }
+.invitation-event p { margin-top: 1rem; color: var(--muted); font-size: 0.8125rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.invitation-response { padding: 1.5rem; border: 1px solid var(--line); border-radius: 0.75rem; background: var(--surface-low); }
+.invitation-response > .section-eyebrow { display: block; margin-bottom: 0.5rem; font-size: 0.625rem; }
+.invitation-response form { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.invitation-response fieldset { display: grid; gap: 0.5rem; padding: 0; border: 0; }
+.invitation-response legend { margin-bottom: 0.75rem; font-size: 0.8125rem; }
+.invitation-response fieldset label { display: flex; align-items: center; gap: 0.75rem; min-height: 44px; padding: 0.5rem 0.75rem; border: 1px solid var(--line); border-radius: 0.375rem; background: white; font-size: 0.8125rem; cursor: pointer; }
+.invitation-response input[type=radio] { accent-color: var(--primary); }
+.invitation-response fieldset label:has(input:checked) { border-color: var(--primary); background: #f2f5f0; }
+.invitation-response .field { display: grid; gap: 0.5rem; font-size: 0.8125rem; }
+.invitation-response .field input { width: 100%; height: 44px; padding: 0.5rem; background: white; font-size: 0.875rem; }
+.invitation-response .field small, .invitation-response form > p { color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+.public-invitation .button { display: inline-flex; align-items: center; justify-content: center; height: 32px; min-height: 32px; width: auto; padding: 0 0.75rem; cursor: pointer; font-size: 0.8125rem; }
+.public-invitation button:disabled { opacity: 0.6; cursor: not-allowed; }
+.public-invitation :is(a, button, input):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.invitation-private-note { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.6875rem; line-height: 1.6; }
+.invitation-private-note .material-symbols-outlined { flex-shrink: 0; font-size: 1rem; }
+.invitation-confirmation { display: grid; justify-items: start; gap: 1rem; margin-top: 1.5rem; }
+.invitation-confirmation > .material-symbols-outlined { color: var(--primary); font-size: 1.5rem; }
+.invitation-confirmation h3 { font: 400 1.125rem/1.5 var(--serif); }
+.invitation-confirmation p { color: var(--muted); font-size: 0.8125rem; line-height: 1.6; }
+.invitation-footer { display: grid; justify-items: center; gap: 1rem; padding: 2rem 0; text-align: center; }
+.invitation-footer p { font: italic 400 1rem/1.6 var(--serif); }
+.invitation-footer strong { font: 400 1.75rem/1.3 var(--serif); }
+.invitation-footer small { margin-top: 1rem; color: var(--muted); font-size: 0.6875rem; }
+.invitation-message { display: grid; justify-items: center; gap: 1.25rem; padding: 5rem 1rem; text-align: center; }
+.invitation-message h1 { font: 400 2rem/1.2 var(--serif); }
+.invitation-message p { max-width: 40ch; color: var(--muted); line-height: 1.6; }
+.invitation-message > .material-symbols-outlined { color: var(--primary); font-size: 2.5rem; }
+.invitation-loading { display: grid; gap: 1.5rem; }
+.invitation-loading div { height: 16rem; border-radius: 0.75rem; background: var(--surface-container); }
+.invitation-loading p { color: var(--muted); font-size: 0.875rem; }
+@media (max-width: 767px) {
+  .invitation-shell { padding: 1.5rem 1rem; gap: 1.5rem; }
+  .invitation-grid, .invitation-event dl, .invitation-hero > dl { grid-template-columns: 1fr; }
+  .invitation-event__heading { flex-wrap: wrap; }
+  .invitation-topbar nav { gap: 0.5rem; }
+  .invitation-response { padding: 1rem; }
+}

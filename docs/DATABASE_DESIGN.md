@@ -1341,15 +1341,22 @@ index and excluded from default reads. CRUD projections must never expose it.
 This supersedes the earlier guest token-hash recommendation; sessions and member
 invitation tokens retain their existing HMAC hashing rules.
 
-The initial Guest Management increment creates this secret but exposes no sharing
-URL or public invitation endpoint. The subsequent sharing/RSVP increment
-(2026-09-16) retrieves the existing secret via a wedding-scoped explicit projection.
+The initial Guest Management increment creates this secret without exposing it.
+The sharing/RSVP increment (implemented 2026-10-15) retrieves the existing secret
+via a wedding-scoped explicit projection.
 Public token resolution projects only the owner fields needed for the invitation.
 RSVP updates condition on guest ID, wedding ID, token, `__v`, and current capacity;
 they increment `__v` and set status, attendance count, and `rsvpUpdatedAt` together.
 The wedding-scoped summary aggregates guest groups by status and sums saved
 attendance, independently of maximum party capacity. No new domain collection is
 needed. Existing HMAC-keyed MongoDB rate counters also limit public RSVP writes.
+
+Individual emails additionally store private `invitationDeliveryKey` and
+`reminderDeliveryKey` values, excluded from default reads and all CRUD responses.
+These HMAC-derived, short-window provider keys prevent duplicate metadata updates
+on same-key retries; they are not invitation tokens or an email-job collection.
+Email address changes reset that recipient's delivery state without rotating its
+stable invitation URL or changing RSVP. Bulk email jobs remain unimplemented.
 
 Authentication rate limits use the same MongoDB counter pattern. The
 `rate_limit_counters` collection stores an HMAC-derived `keyHash`, fixed

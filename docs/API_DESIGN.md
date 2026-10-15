@@ -1418,7 +1418,7 @@ Do not introduce Elasticsearch.
 
 ---
 
-### Implemented guest CRUD behaviour (2026-09-16)
+### Implemented guest CRUD behaviour (2026-10-15)
 
 - Admins and Managers have equal guest-management permissions. Wedding scope
   comes from authenticated membership; missing/cross-wedding resources return
@@ -1428,7 +1428,7 @@ Do not introduce Elasticsearch.
   then ID for stable pagination. Search is a literal, case-insensitive match on
   name/email/phone, up to 120 characters; regex metacharacters are escaped.
 - RSVP/event filters and `invitationSent=true|false` combine with AND. The current
-  UI offers search, event, and read-only RSVP filters; no delivery actions.
+  UI offers search, event, read-only RSVP and email-status filters; no delivery actions.
 - Required name: trimmed, 1–120 characters. Optional email: valid address or empty,
   maximum 254 characters. Optional phone: up to 40 characters using digits and
   common phone punctuation. Optional notes: up to 2000 characters.
@@ -1578,9 +1578,10 @@ endpoint, public invitation page, email delivery, or RSVP submission. Guest CRUD
 never returns the raw token. Later sharing retrieves the existing secret rather
 than rotating it on each request. Deleting its owner invalidates any future link.
 
-As of 2026-09-16, link retrieval, public invitation viewing, RSVP submission, and
-RSVP summaries (§45, §50–52) are implemented. Guest email delivery, bulk actions
-and reminders (§46–49) remain deferred. Copy/open actions do not mark emails sent.
+As of 2026-10-15, guest CRUD, stable-link retrieval, public invitation viewing,
+RSVP submission, summaries and individual invitation/reminder email delivery
+(§45–46, §48, §50–52) are implemented. Bulk email jobs and batch actions (§47, §49)
+remain planned target contracts. Copy/open/manual share actions never mark emails sent.
 
 ---
 
@@ -1630,6 +1631,18 @@ Send through Resend immediately
 ↓
 Update invitationSentAt
 ```
+
+`Sent` means Resend accepted the message, not confirmed inbox delivery. A failed
+provider request leaves delivery timestamps unchanged. Individual invitation and
+reminder sends share ceilings of 3 requests per guest/15 minutes and 60 per
+wedding/hour, using the existing HMAC-keyed MongoDB counters. The provider gets a
+server-derived one-minute idempotency key; hidden per-kind delivery keys prevent
+double-counting reminder metadata on same-key retries. Writes are never retried
+automatically. A changed/deleted recipient during sending returns
+`EMAIL_SENT_STATE_CHANGED` and instructs the organiser to refresh, rather than
+marking the new recipient as sent. Changing a guest email clears its delivery
+timestamps/count/keys but preserves the invitation token and RSVP. No guest email
+jobs or scheduled worker are introduced by individual sends.
 
 ### Response
 
@@ -1800,7 +1813,8 @@ Return invitation data
       "weddingDate": "2027-02-14",
       "timeZone": "Asia/Kolkata",
       "title": "Our celebration",
-      "location": "Jaipur, Rajasthan, India"
+      "location": "Jaipur, Rajasthan, India",
+      "welcomeMessage": null
     },
     "events": [
       {
@@ -1829,7 +1843,7 @@ internal notes
 
 ---
 
-### Implemented public boundary (2026-09-16)
+### Implemented public boundary (2026-10-15)
 
 `/invite/:token` is a standalone page with no login requirement. Both it and this
 API use generic unavailable states for malformed, missing, or deleted invitations;
@@ -1837,7 +1851,9 @@ a deleted wedding also makes the link unavailable. The API returns 404.
 Only the explicit fields above are exposed: no database IDs, contact details,
 internal notes, other guests, members, or unrelated sharing tokens. Events are
 filtered by owner wedding, invitation event IDs, and `archivedAt: null`.
-The approved floral artwork is a local decorative asset; cover uploads are deferred.
+The page uses the revised Stitch ivory/sage editorial invitation layout; venue
+photography, floral artwork assets and cover uploads remain deferred. No third-party
+stock image is loaded on a private invitation page.
 Responses are no-store; public routes have no-referrer and noindex headers/metadata.
 Token-bearing routes are excluded from Next application incoming request logging.
 The UI retains unsaved RSVP choices after retryable failures and refreshes on focus

@@ -378,9 +378,9 @@ API response instead of attempting to render the response envelope as an array.
 - `DESIGN.md`
 - `docs/PROJECT_STATUS.md`
 
-**Current boundary:** The Stitch Guests & RSVP and Expenses Ledger screens are
-design references for later product milestones and remain inactive because those
-feature flows are not yet implemented in the current PRD scope.
+**Original boundary:** At this milestone, the Stitch Guests & RSVP and Expenses
+Ledger screens were design references for later product milestones. Guest
+Management is now covered by milestone 16; Expenses remains unimplemented.
 
 **Verification:** Refined Stitch design-system review, browser smoke checks for
 landing, sign-in, sign-up, dashboard, Events, Tasks, Wedding Members, Wedding
@@ -420,6 +420,143 @@ and correct content offsets on public/authentication and workspace screens.
 Scrolling checks covered Dashboard, Events, Tasks, Wedding Members, and Wedding
 details. Typecheck, lint, the full automated suite (75 passed; 20 optional HTTP
 smoke tests skipped), production build, and `git diff --check` passed.
+
+### 16. Guest Management registry — 2026-10-15
+
+**Status:** Complete for Guest Management; sharing/public RSVP/individual email added in milestone 17
+
+Admins and Managers can manage wedding-scoped invitation groups at `/guests`:
+create, view details, edit, permanently delete after confirmation, assign active
+ceremonies, search contact/name across paginated results, and combine event, RSVP,
+and invitation-email filters. Each guest record represents a household/invitation,
+not every family member. Optional email, phone, notes, and event selection follow
+the PRD. Existing archived/unavailable event associations remain editable.
+
+The revised Stitch registry and drawer layouts use the established workspace
+shell, 56px headers, 32px actions, and 44px form fields. Rows wrap into labelled
+groups at narrower widths rather than clipping columns. The drawer has one
+scrolling body, persistent actions, keyboard focus containment, unsaved-change
+confirmation, field errors, session recovery, and preserved failed drafts.
+Successful writes and failed subsequent refreshes are reported separately, and
+writes are never automatically replayed. An account/wedding change clears the
+old draft before it can be submitted under another identity.
+
+Guest tokens are generated once using 32 random bytes and stored using the
+documented stable-sharing exception, with a unique index and default selection
+disabled. CRUD uses explicit response projections and never exposes the token,
+normalized email internals, or ownership fields. Capacity/version updates guard
+concurrent edits. The dashboard now reports real invitation-group totals, party
+capacity and saved attendance independently. Source documents' earlier inaccurate
+implementation dates were clarified without changing the target contracts.
+
+**Key areas:**
+
+- `src/app/guests/`
+- `src/app/api/guests/`
+- `src/modules/guests/use-cases.ts`
+- `src/server/models/guest.ts`
+- `src/shared/guests/`
+- `src/app/api/dashboard/route.ts`
+- `src/app/dashboard/page.tsx`
+- `src/app/workspace/WorkspaceSidebar.tsx`
+- `DESIGN.md`
+- `tests/guests.test.ts`
+- `tests/guests-ui.test.tsx`
+- `tests/guests-api-client.test.ts`
+
+**Original boundary:** This increment did not expose sharing URLs, public
+invitations, RSVP submissions or email delivery; milestone 17 adds those flows.
+RSVP and delivery fields remain read-only to organisers. Deleting a guest
+invalidates its stored token; cancellation of queued emails must ship before
+guest EmailJobs are added.
+No CSV, family-side taxonomy, individual rosters, dietary, accommodation,
+automated WhatsApp/SMS, deadlines, or link-open tracking was introduced.
+
+**Verification:** 61 focused tests passed (34 schema/MongoDB/session/route tests,
+17 component tests, 10 API-client tests). Final full run: all 160 tests passed,
+including the expanded 24 local HTTP smoke tests against `localhost:3001`.
+The integration tests use disposable
+MongoDB databases and real authentication sessions with two weddings and both
+roles; they do not access the configured application database. Typecheck and
+lint and production build passed. Local HTTP checks confirmed `/guests` and its
+stylesheet return 200 and guest list/detail/summary APIs return 401 without a
+session, with private/no-store responses. Use `http://localhost:3001` for the
+existing local Origin/Host guard; the `127.0.0.1` alias rejects writes before
+authentication. Authenticated visual/browser verification remains unverified:
+the browser tool hit an approval timeout and then a browser-control timeout on
+its permitted retry. No configured application data was modified for QA.
+
+### 17. Guest invitations, private links, public RSVP and individual email — 2026-10-15
+
+**Status:** Complete for the individual invitation/sharing/RSVP implementation baseline
+
+Guest details now explicitly retrieve the stable private invitation URL, support
+Copy/Open with a manual-copy fallback, and offer user-initiated WhatsApp draft
+sharing. No copy/open action marks an email as sent. The standalone `/invite/:token`
+page needs no account, exposes only the named group and its active invited
+ceremonies, and follows the revised Stitch ivory/sage invitation layout. It
+displays the couple, wedding date/location, welcome message, ceremony timing,
+venue/address and optional dress code/description without private contacts or notes.
+
+Pending RSVPs start without a preselected answer. Guests can confirm a party
+count including the named guest, decline with zero attendance, revisit their
+saved response, and change it using the same link. Failed drafts survive retries,
+capacity/conflict refreshes and rate limiting. Late responses are ignored after
+switching invitation tokens. Focus/cross-tab refresh signals contain only a
+timestamp, never the token or guest details. Limits use HMAC-keyed MongoDB
+counters (20 submissions per invitation/15 minutes, 300/minute globally), with
+owner/capacity validation before quota and per-invitation admission before global
+admission. Version/capacity guards keep organiser edits and RSVP writes consistent.
+
+Admins and Managers can confirm an individual email invitation/resend or a
+pending-RSVP reminder. Successful sends mean provider acceptance, not inbox
+delivery. Missing email, provider failure, expired session, recipient changes,
+and failed post-send refresh have distinct recovery. The existing Resend adapter
+has a bounded timeout, checks acceptance IDs, and supports server-derived short-
+window idempotency keys. Private delivery keys prevent repeat metadata increments.
+Guest-address changes clear the old recipient's delivery state, not the stable
+link or RSVP. Individual sends share limits of 3 per guest/15 minutes and 60 per
+wedding/hour. No writes or sends are automatically replayed.
+
+Token-bearing routes use private/no-store, no-referrer and noindex protections;
+Next incoming-request logging ignores invitation paths. Invalid/deleted links
+and deleted weddings return a generic unavailable response. Existing privacy,
+tenant isolation and read-only organiser RSVP boundaries are preserved.
+
+Follow-up fixes close guest row action menus after selection, outside clicks,
+keyboard focus changes or Escape, with focus restored after dialog dismissal.
+Invitation/reminder buttons send explicit empty JSON objects. Their command APIs
+also accept absent or zero-byte bodies (including Next.js empty streams), fixing
+the pre-delivery `Send a valid JSON request body` error. Malformed JSON,
+unexpected fields, oversized bodies and cross-origin/unauthenticated requests
+remain rejected; guest CRUD and RSVP still require JSON. This fixes request
+handling, not a claim of verified live email delivery.
+
+**Key areas:** `src/modules/guests/invitations.ts`, `src/shared/guests/invitations.ts`,
+`src/app/api/guests/[guestId]/`, `src/app/api/public/invitations/`, `src/app/invite/`,
+`src/app/guests/GuestInvitationActions.tsx`, `src/server/email/resend.ts`,
+`src/server/security/rate-limit.ts`, `src/server/models/guest.ts`, `next.config.ts`,
+`src/app/globals.css`, and the guest/invitation/provider/smoke tests.
+
+**Current boundary:** Bulk email actions/jobs and scheduled workers remain
+deferred, as do automated WhatsApp/SMS, delivery/open tracking, RSVP deadlines,
+individual family rosters, dietary inputs, transport and room allocation. No
+unconfigured venue photo or third-party stock image is loaded on the private
+page. No real emails were sent and no configured application records were
+modified during automated verification. Live recipient delivery and a final
+authenticated visual walkthrough remain separate manual QA checks.
+
+**Verification:** Latest follow-up: 139 focused guest/invitation/API/UI tests
+passed. Full regression: 224 passed; live-local HTTP smoke suite: 30 passed
+(254 checks in total). The regression suite also covers the shared email provider
+adapter. Typecheck, lint, production build and `git diff --check` passed. The
+server was restarted on port 3001. Smoke coverage includes the public page,
+invalid-token responses, private/no-store/no-referrer/noindex headers and protected
+organiser sharing/send/reminder routes. `.env.local`'s non-secret sharing URL was
+corrected from `localhost:3000` to `localhost:3001`; Git still ignores that file,
+and no credentials or production settings were changed. Live inbox delivery and
+authenticated visual/pixel-comparison QA were not performed and remain manual
+verification, not claimed passes.
 
 ## Status vocabulary
 

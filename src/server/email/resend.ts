@@ -7,6 +7,7 @@ type SendEmailInput = {
   subject: string;
   html: string;
   text: string;
+  idempotencyKey?: string;
 };
 
 export function assertEmailDeliveryConfigured() {
@@ -29,6 +30,7 @@ export async function sendEmailThroughResend(
       headers: {
         Authorization: `Bearer ${getRequiredEnv("RESEND_API_KEY")}`,
         "Content-Type": "application/json",
+        ...(input.idempotencyKey ? { "Idempotency-Key": input.idempotencyKey } : {}),
       },
       body: JSON.stringify({
         from: getRequiredEnv("RESEND_FROM_EMAIL"),
@@ -37,6 +39,7 @@ export async function sendEmailThroughResend(
         html: input.html,
         text: input.text,
       }),
+      signal: AbortSignal.timeout(15_000),
     });
   } catch {
     throw new AppError("EMAIL_DELIVERY_FAILED", failureMessage, 503);
@@ -44,5 +47,9 @@ export async function sendEmailThroughResend(
 
   if (!response.ok) {
     throw new AppError("EMAIL_DELIVERY_FAILED", getResendFailureMessage(response.status, failureMessage), 503);
+  }
+  const accepted: unknown = await response.json().catch(() => null);
+  if (!accepted || typeof accepted !== "object" || !("id" in accepted) || typeof accepted.id !== "string" || !accepted.id) {
+    throw new AppError("EMAIL_DELIVERY_FAILED", failureMessage, 503);
   }
 }

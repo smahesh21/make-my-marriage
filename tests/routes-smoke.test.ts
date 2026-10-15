@@ -5,7 +5,7 @@ const smokeEnabled = Boolean(process.env.SMOKE_BASE_URL);
 const smokeTestTimeout = 60_000;
 
 describe("application route smoke", () => {
-  for (const route of ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/onboarding", "/dashboard", "/events", "/tasks", "/settings/wedding", "/settings/members", "/member-invitations/test-token"]) {
+  for (const route of ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/onboarding", "/dashboard", "/events", "/tasks", "/guests", "/invite/not-a-real-token", "/settings/wedding", "/settings/members", "/member-invitations/test-token"]) {
     it.skipIf(!smokeEnabled)(`serves ${route}`, async () => {
       const response = await fetch(new URL(route, smokeBaseUrl));
 
@@ -45,6 +45,33 @@ describe("application route smoke", () => {
     const response = await fetch(new URL("/api/tasks", smokeBaseUrl));
 
     expect(response.status).toBe(401);
+  }, smokeTestTimeout);
+
+  for (const route of ["/api/guests", "/api/guests/rsvp-summary", "/api/guests/000000000000000000000001", "/api/guests/000000000000000000000001/invitation-link"]) {
+    it.skipIf(!smokeEnabled)(`protects ${route} for a fresh session`, async () => {
+      const response = await fetch(new URL(route, smokeBaseUrl));
+      expect(response.status).toBe(401);
+      expect(response.headers.get("Cache-Control")).toContain("no-store");
+    }, smokeTestTimeout);
+  }
+
+  for (const action of ["send-invitation", "send-reminder"]) {
+    it.skipIf(!smokeEnabled)(`protects guest ${action} for a fresh session`, async () => {
+      const response = await fetch(new URL(`/api/guests/000000000000000000000001/${action}`, smokeBaseUrl), { method: "POST" });
+      expect(response.status).toBe(401);
+    }, smokeTestTimeout);
+  }
+  it.skipIf(!smokeEnabled)("invalid public invitation reads are private, generic and unavailable", async () => {
+    const response = await fetch(new URL("/api/public/invitations/not-a-real-token", smokeBaseUrl));
+    expect(response.status).toBe(404);
+    expect(response.headers.get("Cache-Control")).toContain("no-store");
+    expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+    expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
+    expect((await response.json()).error.code).toBe("NOT_FOUND");
+  }, smokeTestTimeout);
+  it.skipIf(!smokeEnabled)("invalid public RSVP links are rejected without authentication or database writes", async () => {
+    const response = await fetch(new URL("/api/public/invitations/not-a-real-token/rsvp", smokeBaseUrl), { method: "POST", headers: { "Content-Type": "application/json", Origin: new URL(smokeBaseUrl).origin }, body: JSON.stringify({ status: "ATTENDING", attendingCount: 1 }) });
+    expect(response.status).toBe(404);
   }, smokeTestTimeout);
 
   it.skipIf(!smokeEnabled)("protects member invitations for a fresh session", async () => {

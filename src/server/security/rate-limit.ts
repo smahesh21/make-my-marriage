@@ -41,7 +41,7 @@ export async function enforceRateLimit(request: Request, rule: RateLimitRule) {
         $inc: { count: 1 },
         $setOnInsert: { expiresAt },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
     ).lean();
   } catch (error) {
     if (!isDuplicateKeyError(error)) throw error;
@@ -49,7 +49,7 @@ export async function enforceRateLimit(request: Request, rule: RateLimitRule) {
     counter = await RateLimitCounterModel.findOneAndUpdate(
       { keyHash, windowStartedAt },
       { $inc: { count: 1 } },
-      { new: true },
+      { returnDocument: "after" },
     ).lean();
   }
 

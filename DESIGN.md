@@ -56,3 +56,39 @@ Use short spring-like transitions on hover and press states, plus staggered entr
 - No overlapping text and images.
 - No fake percentages or unsupported product claims.
 - No filler prompts such as “scroll to explore”.
+
+## Guest workspace — Stitch implementation reference
+
+Use the revised desktop registry (`534eca3bd65a4fa2a027530c6cee0bb6`), add
+drawer (`2094e94b1f8645a284e45eeaf84e5f5b`), and details drawer
+(`26b428edcb534e2da4812c82bed874f0`) in Stitch project `10501377685127019753`.
+Keep the existing palette and typography above, balanced operational density,
+compact 32px actions, 44px fields, 56px headers, and an 8px spacing rhythm.
+Use five restrained summary tiles, a wrapping fixed-layout registry, and a
+right-hand drawer with a single scrolling body and persistent header/footer.
+At smaller widths stack guest rows into readable labelled groups instead of
+clipping columns. Preserve visible focus and restrained transform/opacity motion.
+States include skeleton loading, empty/no results, inline validation, retained
+failed drafts, explicit read retry, discard confirmation, and destructive-action
+confirmation. Never reproduce prototype-only CSV, cohorts, waitlists, tracking,
+or automated messaging. Invitation-group counts and actual attendance are
+different metrics. Bulk campaigns remain deferred; do not add inactive controls
+that suggest they already work.
+
+## Guest invitations — Stitch implementation reference
+
+The public page follows revised screen `13923c7ae5a74bcfa0bb9385babeb297`:
+minimal 56px brand header, ivory canvas, centred editorial invitation panel,
+couple names and group greeting, wedding date/location, then a two-column ceremony
+itinerary and RSVP panel. Use real invited event data only; no unconfigured stock
+venue photo, all-access badge, dietary fields, deadline, or account controls.
+Below 768px stack the itinerary and response form. Keep 32px text actions and 44px
+inputs, visible keyboard focus, and zero page-level horizontal overflow.
+Pending responses start without a preselected answer. Saved Yes/No responses
+have a calm confirmation and Change response. Validation, temporary load failure,
+generic unavailable links, preserved failed drafts, capacity conflicts, and
+rate-limit retry guidance reuse the established inline-feedback language.
+The details drawer's sharing panel explicitly reveals a stable private link,
+offers Copy/Open/manual WhatsApp draft, and explains holder access and manual-copy
+fallback. Email sends/resends and reminders require recipient confirmation; show
+provider acceptance as Sent, never Delivered. No simulation controls are included.
