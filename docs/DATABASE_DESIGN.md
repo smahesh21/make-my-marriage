@@ -3237,7 +3237,7 @@ That document should define:
 - Email batch endpoints
 
 The API design should now be derived directly from this database model rather than inventing data structures independently.
-## Organiser photo lifecycle extension — 2026-09-18
+## Organiser photo lifecycle extension — 2026-10-16
 
 The initial Photo shape above described published metadata only. The first
 implementation extends that same collection (not a separate queue service) with:

@@ -33,10 +33,11 @@ export function LoginPanel({ inviteToken }: { inviteToken?: string }) {
         throw new Error(payload.error?.message ?? "Something went wrong. Please try again.");
       }
 
+      const returnTo = new URLSearchParams(window.location.search).get("next") === "/photos" ? "/photos" : "/dashboard";
       window.location.href = inviteToken
         ? `/member-invitations/${encodeURIComponent(inviteToken)}`
         : payload.data?.hasWedding
-          ? "/dashboard"
+          ? returnTo
           : "/onboarding";
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Something went wrong. Please try again.");

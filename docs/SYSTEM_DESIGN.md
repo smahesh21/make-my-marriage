@@ -2679,9 +2679,10 @@ With this system architecture frozen, the recommended design sequence is:
    - Resend
    - Vercel Cron
    - Production release workflow
-## Organiser gallery storage implementation — 2026-09-18
+## Organiser gallery storage implementation — 2026-10-16
 
-`src/modules/photos` owns schemas, the Photo model, wedding-scoped persistence,
+`src/shared/photos/schemas.ts` owns framework-independent validation and DTOs.
+`src/modules/photos` owns the Photo model, wedding-scoped persistence,
 and gallery use cases. `src/server/storage/r2.ts` owns R2 signing and object
 operations. The AWS S3 client and S3 request presigner are added for the immediate
 need to use R2's S3-compatible API; no external queue or service is introduced.
@@ -2691,7 +2692,8 @@ R2_SECRET_ACCESS_KEY and R2_BUCKET_NAME. R2_PUBLIC_BASE_URL is unused. Existing
 CORS needs only Content-Type for browser PUTs (Content-Length is set by the
 browser), plus GET/PUT/HEAD methods and the allowed app origins. Never expose
 credentials or publicise the bucket. Development and production use separate
-bucket-scoped credentials; Preview deployments still require their own setup.
+bucket-scoped credentials. Development and Preview configuration is recorded in
+`docs/R2_SETUP.md`; new Preview origins require exact-origin allowlisting.
 
 The browser uploads directly to a staging key. The server verifies length, MIME,
 and a 16-byte format signature, pinning inspection and copying to the same ETag.
@@ -2713,7 +2715,12 @@ change discards that draft. Refreshing/closing the tab cannot restore File objec
 the existing unsaved-changes guard warns before navigation. No persistent file
 cache is stored in localStorage.
 
-Verification: `npm test` uses mocked persistence/storage and component tests.
-`RUN_R2_SMOKE=1 npm test -- src/server/storage/r2.integration.test.ts` explicitly
-loads `.env.local`, refuses any bucket other than make-my-marriage-dev, and
-uploads/reads/deletes only a unique test-fixtures prefix. It never uses MongoDB.
+Verification: `npm test` includes component and storage-adapter tests plus real
+sessions/memberships/photo persistence in a disposable MongoDB instance; storage
+is mocked in that database suite. Set `RUN_R2_SMOKE=1` and run
+`node node_modules/vitest/vitest.mjs run tests/r2-gallery-smoke.test.ts` for the
+explicit live-storage check. It loads `.env.local`, refuses any bucket other
+than `make-my-marriage-develop`, and uploads/reads/deletes only two synthetic
+objects under a unique test-fixtures prefix. It never uses MongoDB. The live
+check verifies Content-Type signing and staging-replay isolation as well as the
+upload/inspect/copy/read/delete round trip.

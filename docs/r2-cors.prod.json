@@ -1,0 +1,9 @@
+[
+  {
+    "AllowedOrigins": ["https://www.makemymarriage.co.in"],
+    "AllowedMethods": ["GET", "PUT", "HEAD"],
+    "AllowedHeaders": ["Content-Type"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]

@@ -3834,7 +3834,7 @@ That document should define:
 - Dependency rules between modules
 
 After that, we can move into **frontend architecture/UI flows**, and then implementation can begin without Codex having to invent foundational architecture while writing code.
-## Organiser gallery implementation clarification — 2026-09-18
+## Organiser gallery implementation clarification — 2026-10-16
 
 The first gallery increment implements authenticated Admin/Manager uploads,
 browsing, single-photo downloads, and deletion. Public/gallery-token routes,

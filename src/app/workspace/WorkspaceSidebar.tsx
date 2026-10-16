@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { AuthBrand } from "@/app/auth/AuthBrand";
 
-type WorkspaceSection = "overview" | "members" | "events" | "tasks" | "guests" | "wedding";
+type WorkspaceSection = "overview" | "members" | "events" | "tasks" | "guests" | "photos" | "wedding";
 
 type WorkspaceSidebarProps = {
   active: WorkspaceSection;
@@ -26,10 +26,11 @@ export function WorkspaceSidebar({ active }: WorkspaceSidebarProps) {
         <Link className={active === "events" ? "is-active" : ""} href="/events" aria-current={active === "events" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">event</span>Events &amp; schedule</Link>
         <Link className={active === "tasks" ? "is-active" : ""} href="/tasks" aria-current={active === "tasks" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">checklist</span>Tasks</Link>
         <Link className={active === "guests" ? "is-active" : ""} href="/guests" aria-current={active === "guests" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">mark_email_read</span>Guests &amp; RSVP</Link>
+        <Link className={active === "photos" ? "is-active" : ""} href="/photos" aria-current={active === "photos" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">photo_library</span>Photos &amp; Gallery</Link>
         <span className="members-nav__section">Workspace</span>
         <Link className={active === "wedding" ? "is-active" : ""} href="/settings/wedding" aria-current={active === "wedding" ? "page" : undefined}><span className="material-symbols-outlined" aria-hidden="true">tune</span>Wedding details</Link>
       </nav>
-      <div className="members-sidebar__footer"><span className="members-sidebar__hint">A calm place for the details that matter.</span><button className="members-sidebar__signout" onClick={logout} type="button"><span className="material-symbols-outlined" aria-hidden="true">logout</span>Sign out</button></div>
+      <div className="members-sidebar__footer"><button className="members-sidebar__signout" onClick={logout} type="button"><span className="material-symbols-outlined" aria-hidden="true">logout</span>Sign out</button></div>
     </aside>
   );
 }

@@ -5,7 +5,7 @@ const smokeEnabled = Boolean(process.env.SMOKE_BASE_URL);
 const smokeTestTimeout = 60_000;
 
 describe("application route smoke", () => {
-  for (const route of ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/onboarding", "/dashboard", "/events", "/tasks", "/guests", "/invite/not-a-real-token", "/settings/wedding", "/settings/members", "/member-invitations/test-token"]) {
+  for (const route of ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/onboarding", "/dashboard", "/events", "/tasks", "/guests", "/photos", "/invite/not-a-real-token", "/settings/wedding", "/settings/members", "/member-invitations/test-token"]) {
     it.skipIf(!smokeEnabled)(`serves ${route}`, async () => {
       const response = await fetch(new URL(route, smokeBaseUrl));
 
@@ -18,6 +18,15 @@ describe("application route smoke", () => {
 
     expect(response.status).toBe(401);
   }, smokeTestTimeout);
+
+  for (const [route, method] of [["/api/photos", "GET"], ["/api/photos", "POST"], ["/api/photos/upload-url", "POST"], ["/api/photos/000000000000000000000001", "DELETE"], ["/api/photos/000000000000000000000001/download", "GET"]]) {
+    it.skipIf(!smokeEnabled)(`protects private photo ${method} ${route}`, async () => {
+      const response = await fetch(new URL(route!, smokeBaseUrl), { method, headers: { Origin: new URL(smokeBaseUrl).origin } });
+      expect(response.status).toBe(401);
+      expect(response.headers.get("Cache-Control")).toContain("no-store");
+      expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+    }, smokeTestTimeout);
+  }
 
   it.skipIf(!smokeEnabled)("protects wedding creation for a fresh session", async () => {
     const response = await fetch(new URL("/api/wedding", smokeBaseUrl), {

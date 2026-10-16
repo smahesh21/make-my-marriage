@@ -750,7 +750,6 @@ ul { margin: 0; padding: 0; }
 .members-nav__disabled { color: #9b9e98; cursor: not-allowed; }
 .members-nav .material-symbols-outlined { font-size: 1.15rem; }
 .members-sidebar__footer { display: grid; gap: 1rem; margin-top: auto; padding-top: 2rem; }
-.members-sidebar__hint { color: var(--muted); font-family: var(--serif); font-size: 0.875rem; line-height: 1.35rem; }
 .members-sidebar__signout { display: inline-flex; min-height: 2.75rem; align-items: center; gap: 0.65rem; border: 0; padding: 0.25rem 0.75rem; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.8125rem; text-align: left; }
 .members-sidebar__signout:hover { color: var(--ink); }
 .members-content { width: min(90rem, 100%); min-width: 0; padding: clamp(2.5rem, 5vw, 5rem) clamp(1.25rem, 4vw, 4rem) 5rem; }

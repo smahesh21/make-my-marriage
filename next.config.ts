@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    return ["/invite/:path*", "/api/public/invitations/:path*"].map(
+    return ["/invite/:path*", "/api/public/invitations/:path*", "/photos/:path*", "/api/photos/:path*"].map(
       (source) => ({
         source,
         headers: [

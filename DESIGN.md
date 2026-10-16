@@ -92,3 +92,25 @@ The details drawer's sharing panel explicitly reveals a stable private link,
 offers Copy/Open/manual WhatsApp draft, and explains holder access and manual-copy
 fallback. Email sends/resends and reminders require recipient confirmation; show
 provider acceptance as Sent, never Delivered. No simulation controls are included.
+
+## Photos & Gallery — Stitch implementation reference
+
+The organiser increment follows gallery screen `8c73e51b8ca14010beea23192680c788`
+and upload drawer `7596f6387a1b4712a6b580684403398c` in project
+`10501377685127019753`. Retain the ivory canvas, editorial Noto Serif headings,
+Inter operational text, sage accents, quiet stone borders, 8px spacing rhythm,
+56px headers and 32px actions. The responsive collection uses wrapping event
+filters, a four-column desktop image grid with one wider editorial image,
+compact-grid toggle, original-aspect viewer, and explicit cursor pagination.
+Below 768px stack the content without horizontal page overflow. Uploads use a
+right-hand drawer with one scrolling body and persistent header/footer. Show
+per-file progress, retained failed drafts, individual retries, discard warnings,
+and confirmation for permanent deletion. Respect reduced motion and trap dialog
+focus, restoring it on dismissal.
+
+Prototype-only search by tags, highlights, view counts, named guest attribution,
+passcodes, live sync, public-website controls, and unsupported formats/large-file
+claims are not implemented. Use real filenames, dates, event names and counts.
+The public gallery and sharing/QR designs exist but remain a later increment as
+specified by the current API clarification. Do not show inactive sharing controls
+or expose a stable token before that feature is implemented.

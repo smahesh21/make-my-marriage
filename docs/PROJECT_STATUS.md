@@ -8,7 +8,7 @@ The status log is not a replacement for the PRD, system design, database design,
 
 **Overall status:** Active development
 
-**Last updated:** 2026-10-15
+**Last updated:** 2026-10-16
 
 ## Completed milestones
 
@@ -557,6 +557,157 @@ corrected from `localhost:3000` to `localhost:3001`; Git still ignores that file
 and no credentials or production settings were changed. Live inbox delivery and
 authenticated visual/pixel-comparison QA were not performed and remain manual
 verification, not claimed passes.
+
+### 19. Organiser Photos & Gallery — 2026-10-16
+
+**Status:** Complete for the first authenticated Admin/Manager increment;
+guest access and sharing/QR remain planned separately
+
+The `/photos` workspace follows the reviewed Stitch member gallery
+`8c73e51b8ca14010beea23192680c788` and upload drawer
+`7596f6387a1b4712a6b580684403398c`. It includes responsive grid/compact views,
+event and Wedding Memories filters, cursor pagination, original-aspect viewer,
+single-photo downloads and explicit permanent-deletion confirmation. Shared
+sidebar navigation now includes Photos & Gallery. The signed-out page has no
+workspace navigation; sign-in can return to `/photos` without an open redirect.
+Headers remain 56px, actions 32px, and the drawer has a single scrolling body.
+The shared workspace sidebar no longer displays the decorative footer tagline;
+Sign out remains at the bottom across all workspace screens. Its unused CSS was
+removed. Typecheck, lint, production build and the focused desktop/mobile browser
+check passed after this cleanup, including explicit checks for the absent tagline
+and visible Sign out action.
+
+JPEG, PNG and WebP uploads accept 1 byte through 10 MiB, at most 20 selected files
+per sequential UI batch. Per-file progress, retained failure drafts, retries,
+rate-limit guidance, cancellation/discard confirmation and session recovery are
+implemented. Completed files are not replayed; ambiguous confirmations reuse the
+same reservation. Identity changes discard the in-memory draft. Refresh/close
+warns about unsaved files; no file data is persisted in browser storage.
+
+Server-issued staging reservations bind the metadata to the authenticated wedding
+and member. The 10-minute signed PUT binds Content-Type/Length. Confirmation
+checks R2 metadata and a 16-byte image signature, pins inspection/copy to the same
+ETag, copies to a separate final key, and atomically publishes READY metadata.
+Concurrent confirmations publish one row and clean losing copies; late PUT
+replays cannot overwrite the final object. Idempotent confirmations allow a
+24-hour recovery window after PUT expiry. Deleted rows become hidden tombstones,
+preventing resurrection. Storage deletion errors preserve metadata and return a
+retryable error. Queries are wedding-scoped, credentials stay server-only, reads
+are signed for 15 minutes, and photo/API responses are private/no-store/no-referrer.
+Upload issuance uses member-first 120/15-minute and wedding 600/15-minute quotas.
+
+**Key areas:** `src/app/photos/`, `src/app/api/photos/`, `src/modules/photos/`,
+`src/shared/photos/schemas.ts`, `src/server/storage/r2.ts`, shared navigation,
+configuration/error handling, `next.config.ts`, `DESIGN.md`, photo tests and the
+architecture/API/database lifecycle clarifications.
+
+**Verification:** Typecheck, lint and production build passed. QA-follow-up
+regression: 278 passed; 37 opt-in checks skipped in that default run. Separately,
+11 isolated Chromium browser checks and 36 fresh-session local HTTP route checks
+passed. One live-development R2 round-trip passed during initial implementation;
+it was not rerun for this test/client-recovery follow-up. Tests cover real
+sessions/memberships and disposable MongoDB persistence, Admin/Manager tenant
+isolation, validation, pending/READY/deleted lifecycle, concurrent confirmation,
+pagination/filter binding, rate limiting, storage faults, and UI recovery/focus.
+The live R2 test verified upload, conditional publication, attachment download,
+wrong-type rejection and staging-replay isolation, then removed only its two
+disposable objects. No configured application records or user photos were changed.
+One concurrent build/test run exceeded existing UI-test timeouts; rerunning the
+regression separately passed. The app was restarted on port 3001 and `/photos`
+loads with signed-out recovery and no sidebar. The supplied manual Manager QA
+report lists 18 passed cases (its summary incorrectly says 15), zero failures and
+five blocked cases. Added generated large/corrupt/mismatched/duplicate fixtures,
+real-session Admin/Manager upload-to-delete database tests, byte-progress/abort
+checks and isolated browser fault/retry/cancel/delete-confirmation coverage.
+Browser APIs/storage are synthetic, not a live Admin account/R2 certification.
+Fixed missing-staging retries to resend bytes with the same reservation, while
+ambiguous confirmations still avoid duplicate PUTs; definitively invalid files
+require reselection. Failure injection is runner-only, with no shipped test
+switch. See `docs/GALLERY_QA_FOLLOW_UP.md` and `tests/README.md` for evidence and
+remaining boundaries. Production
+dependency audit reports existing Next/PostCSS advisories (moderate/high); no
+AWS SDK advisory was reported. A breaking framework upgrade was not performed.
+
+**Deferred:** Public token gallery/uploads, sharing link, QR/settings screens,
+cover uploads, videos/HEIC conversion, editing, tags/highlights, bulk operations,
+thumbnail derivatives, full decoding/malware scanning and orphan reconciliation.
+Original images load lazily but may still be up to 10 MiB each. Staging cleanup
+is best effort; abandoned/replayed/ambiguous-write objects require later cleanup.
+Production credentials/hosting and remote deployments were not changed.
+
+## Work in progress
+
+### 18. Cloudflare R2 storage configuration — 2026-10-15
+
+**Status:** Development and Vercel Preview configuration verified on 2026-10-16;
+organiser gallery integrated; Vercel Production configuration pending
+
+Both `make-my-marriage-develop` and `make-my-marriage-prod` were verified through
+the signed-in Cloudflare dashboard and connected API.
+The ignored local `.env.local` now selects the development bucket and includes
+the account ID from the owner's dashboard link. The owner-created development
+key's S3 credentials are saved privately in that ignored file, with no
+`NEXT_PUBLIC_*` exposure. `.env.example`, `docs/R2_SETUP.md`,
+`docs/r2-cors.develop.json` and `docs/r2-cors.prod.json` document environment
+separation, bucket-scoped Object Read & Write tokens, private storage and
+explicit CORS origins. The owner confirmed `https://www.makemymarriage.co.in`
+for production. Both policies were applied and read back from Cloudflare:
+development initially allowed only localhost/127.0.0.1 on port 3001 (the current
+Preview origins were added in the follow-up below), and production only the
+confirmed HTTPS www origin. Both buckets have public development URLs disabled
+and no public custom domains. No existing CORS policy was overwritten.
+
+**Verification:** Signed ListObjectsV2 returned 200 for development and 403 for
+production using the development key. PUT preflights returned 204 for both local
+origins and 403 for an unrelated origin. The key's development-only Object Read
+& Write scope was checked on the creation-success page. `.env.local` remains
+Git-ignored; no secret values were displayed or placed in tracked files. These
+checks were read-only and did not upload, change or delete objects.
+The local server was started with the updated environment on port 3001, and
+`/login` returned 200. A scan of pending project files found neither R2 key;
+the ignored `.env.local` is not part of those files.
+
+**Vercel Development sync:** The verified existing `make-my-marriage` project
+now has `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and
+`R2_BUCKET_NAME` scoped exclusively to Development. Remote metadata confirms
+type `encrypted` for all four. Values were passed through private stdin and
+never displayed or included in command arguments. No unrelated settings,
+local environment contents or deployments were changed.
+Development variables remain retrievable by authorised project members; no
+non-readable Sensitive/Secret property is claimed for this scope.
+
+**Vercel Preview / Production follow-up — 2026-10-16:** All four R2 entries
+are also saved for all Preview branches, using the development bucket and its
+restricted credentials. Remote metadata verifies both Preview keys are
+`sensitive` (write-only secrets), while the account ID and bucket name are
+`encrypted`. A separate `make-my-marriage-prod-app` Object Read & Write token
+was created with the owner's explicit approval, restricted only to the production
+bucket and active until revoked. Its credentials were not saved in local files
+or displayed. Production transfer remains pending separately; no Production R2
+variables have been saved. No deployment was triggered.
+
+**Development / Preview completion — 2026-10-16:** Reconfirmed the existing
+Vercel project and all eight scoped R2 variable entries through the authorised
+CLI connection. Added the exact current Preview deployment URL and its verified
+alias to the development bucket's CORS policy while retaining local origins and
+the existing methods/headers. Both Preview and both local PUT preflights returned
+204; an unrelated origin returned 403. Signed development access returned 200,
+the same key was denied production access (403), and an unsigned object request
+was rejected (400). Public development URLs remain disabled and the bucket has
+no public custom domains. All 138 non-ignored tracked/untracked project files
+were checked against the development credentials with no matches; `.env.local`
+remains ignored. The documented CORS JSON matches the applied policy. Production
+was left unchanged per the latest request. No object writes or deployments were
+performed. The browser sign-in handoff could not be confirmed because the
+accessible tab reached a GitHub origin blocked by the browser access check;
+the existing authorised CLI connection sufficed for this configuration check.
+
+**Remaining:** Complete Production separately using production-only credentials;
+inspect and allowlist any future Preview URLs before direct browser uploads;
+the guest gallery/sharing/QR increment remains planned separately. The organiser
+photo routes and R2 adapter are implemented and verified in milestone 19. No
+user photos or production hosting settings have been changed. Production remains
+unconnected; the development integration does not establish production readiness.
 
 ## Status vocabulary
 
