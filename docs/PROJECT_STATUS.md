@@ -633,14 +633,17 @@ cover uploads, videos/HEIC conversion, editing, tags/highlights, bulk operations
 thumbnail derivatives, full decoding/malware scanning and orphan reconciliation.
 Original images load lazily but may still be up to 10 MiB each. Staging cleanup
 is best effort; abandoned/replayed/ambiguous-write objects require later cleanup.
-Production credentials/hosting and remote deployments were not changed.
+Production credentials/hosting were unchanged during that implementation. The
+subsequent production configuration and existing-photo limitation are recorded
+in milestone 18 below.
 
 ## Work in progress
 
 ### 18. Cloudflare R2 storage configuration — 2026-10-15
 
-**Status:** Development and Vercel Preview configuration verified on 2026-10-16;
-organiser gallery integrated; Vercel Production configuration pending
+**Status:** Development, Preview and Production R2 configuration saved and
+verified on 2026-10-16; production redeployed. Existing development-photo
+records require a separate migration/environment-isolation decision.
 
 Both `make-my-marriage-develop` and `make-my-marriage-prod` were verified through
 the signed-in Cloudflare dashboard and connected API.
@@ -683,8 +686,8 @@ restricted credentials. Remote metadata verifies both Preview keys are
 `encrypted`. A separate `make-my-marriage-prod-app` Object Read & Write token
 was created with the owner's explicit approval, restricted only to the production
 bucket and active until revoked. Its credentials were not saved in local files
-or displayed. Production transfer remains pending separately; no Production R2
-variables have been saved. No deployment was triggered.
+or displayed. At that stage Production transfer remained pending and no
+Production deployment was triggered; see the production completion below.
 
 **Development / Preview completion — 2026-10-16:** Reconfirmed the existing
 Vercel project and all eight scoped R2 variable entries through the authorised
@@ -702,12 +705,36 @@ performed. The browser sign-in handoff could not be confirmed because the
 accessible tab reached a GitHub origin blocked by the browser access check;
 the existing authorised CLI connection sufficed for this configuration check.
 
-**Remaining:** Complete Production separately using production-only credentials;
-inspect and allowlist any future Preview URLs before direct browser uploads;
-the guest gallery/sharing/QR increment remains planned separately. The organiser
-photo routes and R2 adapter are implemented and verified in milestone 19. No
-user photos or production hosting settings have been changed. Production remains
-unconnected; the development integration does not establish production readiness.
+**Production configuration completion — 2026-10-16:** With explicit approval,
+created `make-my-marriage-prod-vercel`, an account token with Object Read & Write
+access only to `make-my-marriage-prod`, active until revoked. The earlier
+`make-my-marriage-prod-app` token was left unchanged; its one-time secret was no
+longer available. Saved both new S3 keys directly into Vercel Production as
+non-readable Secrets (`sensitive`), and saved the account ID and production
+bucket name as Config (`encrypted`). All twelve R2 environment entries were
+verified through metadata; Development and Preview were unchanged. No production
+key was saved in local files, displayed, or committed. Temporary in-memory key
+references were cleared after saving.
+
+Redeployed the existing reviewed production commit `6f98562` as deployment
+`dpl_71TPfEsm1rYj8enYR6u61RDfh3f8`. It reached READY with production aliases
+assigned, including the live www app. The production `/photos` page returned
+200; after the owner signed in, the Admin gallery listed three photos without
+the original SERVER_NOT_CONFIGURED error. A production-origin PUT preflight
+returned 204; localhost was rejected with 403. The bucket still has no public
+development URL or custom domain. A scoped recent error-log scan returned zero
+entries. No photos were uploaded, copied, deleted, or modified for these checks.
+
+**Remaining data limitation:** All three existing image previews failed to load.
+A private signed production read returned `NoSuchKey`, confirming authentication
+but not object presence. Read-only bucket checks found zero `weddings/` objects
+in production and four in development. The gallery's existing records therefore
+cannot be served by the new production bucket. Preview and Production also
+share the configured MongoDB variable entries. A deliberate database separation
+and/or scoped existing-photo migration needs owner approval; copying everything
+or switching the production database was not performed. This setup completion
+is not a successful production upload/download certification. Future Preview
+origins still need exact allowlisting; public gallery/sharing/QR remain planned.
 
 ## Status vocabulary
 

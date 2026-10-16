@@ -36,11 +36,15 @@ Cloudflare bearer token was not stored. No credential values were displayed or
 added to tracked files. With the owner's explicit approval, a separate
 `make-my-marriage-prod-app` account token was created with Object Read & Write
 access restricted to `make-my-marriage-prod`, active until revoked. Its credentials
-have not been saved in local project files. Saving them in Vercel Production is
-pending. The latest request covers Development and Preview only; Production was
-left unchanged. No Production R2 environment variables have been saved yet. If
-the one-time production secret is no longer available, a replacement must be
-created explicitly before that separate setup can be completed.
+were not saved in local project files. That token's one-time secret was no longer
+available at production setup. With fresh explicit approval, created the
+replacement `make-my-marriage-prod-vercel` with the same production-only Object
+Read & Write scope, active until revoked. Saved its S3 credentials directly in
+Vercel Production as non-readable Secrets, without local files or displayed
+values. The earlier production token was left unchanged. The account ID and
+`R2_BUCKET_NAME=make-my-marriage-prod` were saved as Production Config values.
+All twelve scoped R2 variable entries were verified through metadata; the eight
+Development/Preview entries were unchanged.
 
 The four R2 variables were also saved to the existing Vercel project
 `make-my-marriage` in **Development and Preview**, using private stdin rather than
@@ -71,7 +75,7 @@ and orphan reconciliation remain later increments. The old example bucket
 | --- | --- | --- |
 | Local development | `make-my-marriage-develop` | Development-only token; localhost origins below |
 | Vercel Preview | `make-my-marriage-develop` | Development-only token saved; current verified Preview URL and alias allowlisted |
-| Production | `make-my-marriage-prod` | Separate production-only token created; Vercel save pending separately; confirmed HTTPS app origins only |
+| Production | `make-my-marriage-prod` | Production-only token saved in Vercel Production; confirmed HTTPS www origin only |
 
 Do not use production credentials in local development or preview deployments.
 The owner confirmed `https://www.makemymarriage.co.in/` as the production app URL.
@@ -155,12 +159,26 @@ For `make-my-marriage-prod`, the separate dashboard policy is prepared in
 applying it. Do not add localhost, wildcards or unconfirmed deployment URLs to
 the production bucket. This policy was applied and read back on 2026-10-16.
 
-The production-only token has been created with the owner's approval, but its
-Vercel Production settings are not saved yet. Production is outside the latest
-Development/Preview request and was left unchanged. No deployment has been
-triggered. Environment changes apply to new deployments, not already running
-deployments. Current Preview origins are allowlisted as described above; new
-Preview origins require an explicit allowlist update.
+The approved production-only replacement token is now saved in Vercel Production.
+The existing reviewed commit `6f98562` was redeployed as
+`dpl_71TPfEsm1rYj8enYR6u61RDfh3f8`, which reached READY with production aliases
+assigned. The authenticated Admin gallery no longer reports missing R2 variables.
+Production-origin PUT preflight returned 204; localhost returned 403. Current
+Preview origins are allowlisted as described above; new Preview origins require
+an explicit allowlist update.
+
+### Existing-photo and database separation caveat
+
+The three existing gallery records still refer to photos uploaded to development
+storage. All three previews failed after switching to production storage; a
+private signed production read returned `NoSuchKey` (not an authentication error).
+Read-only checks found zero wedding objects in production and four in development.
+Preview and Production share MongoDB variable entries, so separate R2 buckets
+alone do not isolate gallery metadata. Agree on database separation and the exact
+records/objects to migrate before moving any user photos or changing database
+configuration. No data was migrated or deleted during this setup, and no
+production fixture upload was performed. The old unused production token may be
+reviewed/revoked separately with the owner's approval.
 
 ## 5. Verification before declaring storage ready
 
